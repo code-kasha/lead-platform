@@ -15,15 +15,15 @@
 
 # Phase 2 - Backend Setup
 
-- [ ] Create Django project
-- [ ] Create virtual environment
-- [ ] Install Django
-- [ ] Install Django REST Framework
-- [ ] Install PostgreSQL driver
-- [ ] Install JWT package
-- [ ] Install drf-spectacular
-- [ ] Configure settings.py
-- [ ] Setup environment variables
+- [✅] Create Django project
+- [✅] Create virtual environment
+- [✅] Install Django
+- [✅] Install Django REST Framework
+- [✅] Install PostgreSQL driver
+- [✅] Install JWT package
+- [✅] Install drf-spectacular
+- [✅] Configure settings.py
+- [✅] Setup environment variables
 
 ---
 
