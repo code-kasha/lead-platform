@@ -9,6 +9,8 @@ from apps.common.examples import UNAUTHORIZED as UNAUTHORIZED_EXAMPLE
 from apps.common.serializers import AccessTokenSerializer, LoginRequestSerializer, TokenSerializer
 from drf_spectacular.utils import extend_schema
 
+from .serializers import LogoutSerializer
+
 login_schema = extend_schema(
     tags=["Authentication"],
     summary="Login",
@@ -53,11 +55,11 @@ me_schema = extend_schema(
     },
 )
 
-
 logout_schema = extend_schema(
     tags=["Authentication"],
     summary="Logout",
-    description=("Invalidate the supplied refresh token by adding it to the " "JWT blacklist."),
+    description=("Blacklist the supplied refresh token so it cannot be used " "to obtain new access tokens."),
+    request=LogoutSerializer,
     responses={
         205: None,
         400: BAD_REQUEST,

@@ -2,11 +2,12 @@
 # Authentication API Views
 # ==============================================================================
 
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .docs import login_schema, me_schema, refresh_schema
-from .serializers import LoginSerializer, UserSerializer
+from .docs import login_schema, logout_schema, me_schema, refresh_schema
+from .serializers import LoginSerializer, LogoutSerializer, UserSerializer
 
 
 @login_schema
@@ -30,3 +31,20 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+@logout_schema
+class LogoutView(generics.GenericAPIView):
+    """
+    Blacklist a refresh token.
+    """
+
+    serializer_class = LogoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_205_RESET_CONTENT)

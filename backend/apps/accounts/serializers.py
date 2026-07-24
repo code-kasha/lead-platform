@@ -5,6 +5,7 @@
 from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 
@@ -77,3 +78,16 @@ class LoginSerializer(TokenObtainPairSerializer):
 
 class UserSummarySerializer(UserSerializer):
     pass
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField(
+        help_text="Refresh token to invalidate.",
+    )
+
+    def validate(self, attrs):
+        self.token = attrs["refresh"]
+        return attrs
+
+    def save(self, **kwargs):
+        RefreshToken(self.token).blacklist()

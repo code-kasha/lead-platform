@@ -1,537 +1,242 @@
 # Lead Management Platform
 
-A production-ready Lead Management Platform built with Django REST Framework.
+A production-ready Lead Management Platform built with **Django REST Framework** and **React**.
 
-This application allows sales teams to capture, manage, assign, and track leads through a complete sales pipeline with secure authentication, role-based access control, activity tracking, and a RESTful API.
+The platform enables sales teams to capture, manage, assign, and track leads throughout the sales pipeline. It features JWT authentication, role-based access control, activity tracking, comprehensive API documentation, and a scalable architecture.
 
-This project is being built as part of the **Full Stack Development Assessment**.
+This project is being developed as part of the **Full Stack Development Assessment**.
 
 ---
 
 ## Features
 
-### Public Lead Capture
-
-- Public lead submission form
-- Spam protection (optional)
-- Server-side validation
-- Duplicate lead detection (optional)
-
 ### Authentication
 
 - JWT Authentication
-- Login / Logout
-- Refresh Tokens
+- Login, Logout & Token Refresh
+- Current User endpoint
 - Password hashing
-- Protected API
+- Protected REST API
 
-### Roles
+### Lead Management
 
-There are two application roles.
+- Create, retrieve, update and delete leads
+- Lead assignment
+- Lead status management
+- Notes and activity history
+- Server-side validation
 
-#### Admin
+### API
 
-- View all leads
-- Create/Edit/Delete leads
-- Assign leads to members
-- Change lead status
-- Manage users
-- View activity logs
-- Add notes
+- RESTful API
+- OpenAPI 3 specification
+- Swagger UI
+- ReDoc documentation
+- Standardised API responses
 
-#### Member
+### Architecture
 
-- View assigned leads
-- Update assigned leads
-- Add notes
-- Change lead status (limited)
-- View activity history
-
-Permissions are enforced on both:
-
-- Backend
-- Frontend
+- Modular Django application structure
+- Environment-based configuration
+- PostgreSQL database
+- Custom User model
+- Shared serializers and API documentation components
 
 ---
 
-## Lead Lifecycle
+## Technology Stack
 
-Example pipeline
-
-```
-New
-↓
-
-Contacted
-↓
-
-Qualified
-↓
-
-Proposal Sent
-↓
-
-Won
-```
-
-Alternative outcome
-
-```
-New
-↓
-
-Contacted
-↓
-
-Lost
-```
-
-Each status change is recorded in the activity history.
-
----
-
-## Lead Information
-
-Each lead contains:
-
-- Name
-- Email
-- Phone
-- Company
-- Source
-- Status
-- Assigned User
-- Created By
-- Created Date
-- Updated Date
-
----
-
-## Notes
-
-Every lead supports multiple notes.
-
-Each note contains
-
-- Author
-- Timestamp
-- Content
-
-Notes cannot be edited after creation (optional business rule).
-
----
-
-## Activity Trail
-
-Every important action creates an activity entry.
-
-Examples:
-
-- Lead created
-- Lead assigned
-- Status changed
-- Note added
-- Lead updated
-
-Activity entries contain
-
-- User
-- Action
-- Timestamp
-- Metadata
-
----
-
-# Technology Stack
-
-## Backend
+### Backend
 
 - Python
 - Django
 - Django REST Framework
 - PostgreSQL
-- JWT Authentication
-- drf-spectacular (API docs)
+- Simple JWT
+- drf-spectacular
 
-## Frontend
+### Frontend
 
 - React
 - Vite
 - Axios
 - React Router
 
-## Deployment
-
-Backend
-
-- Render / Railway
-
-Frontend
-
-- Vercel / Netlify
-
-Database
-
-- PostgreSQL
-
 ---
 
-# Project Structure
+## Project Structure
 
-```
+```text
 backend/
-    config/
-    apps/
-        accounts/
-        leads/
-        notes/
-        activities/
+├── config/
+├── apps/
+│   ├── accounts/
+│   ├── common/
+│   └── leads/
+└── manage.py
 
 frontend/
 ```
 
 ---
 
-# Database Design
+## API Documentation
 
-## User
+Once the backend is running, documentation is available at:
 
-```
-id
-name
-email
-password
-role
-created_at
-```
+| Service        | URL            |
+| -------------- | -------------- |
+| Swagger UI     | `/api/docs/`   |
+| ReDoc          | `/api/redoc/`  |
+| OpenAPI Schema | `/api/schema/` |
 
 ---
-
-## Lead
-
-```
-id
-name
-email
-phone
-company
-status
-assigned_to
-created_by
-created_at
-updated_at
-```
-
----
-
-## LeadNote
-
-```
-id
-lead
-author
-note
-created_at
-```
-
----
-
-## ActivityLog
-
-```
-id
-lead
-user
-action
-metadata
-created_at
-```
-
----
-
-# API
 
 ## Authentication
 
-```
-POST /api/auth/login/
+All protected endpoints require a JWT access token.
 
-POST /api/auth/refresh/
+Example:
 
-POST /api/auth/logout/
-```
-
----
-
-## Leads
-
-### List Leads
-
-```
-GET /api/leads/
-```
-
-Supports
-
-- Pagination
-- Search
-- Filtering
-- Ordering
-
-Example
-
-```
-GET /api/leads/?status=new&page=2&page_size=20
-```
-
----
-
-### Create Lead
-
-```
-POST /api/leads/
-```
-
----
-
-### Retrieve Lead
-
-```
-GET /api/leads/{id}/
-```
-
----
-
-### Update Lead
-
-```
-PUT /api/leads/{id}/
-PATCH /api/leads/{id}/
-```
-
----
-
-### Delete Lead
-
-```
-DELETE /api/leads/{id}/
-```
-
-(Admin only)
-
----
-
-### Assign Lead
-
-```
-POST /api/leads/{id}/assign/
-```
-
----
-
-### Change Status
-
-```
-POST /api/leads/{id}/status/
-```
-
----
-
-### Notes
-
-```
-GET /api/leads/{id}/notes/
-
-POST /api/leads/{id}/notes/
-```
-
----
-
-### Activity
-
-```
-GET /api/leads/{id}/activity/
-```
-
----
-
-# Status Codes
-
-| Code | Meaning          |
-| ---- | ---------------- |
-| 200  | Success          |
-| 201  | Created          |
-| 204  | Deleted          |
-| 400  | Validation Error |
-| 401  | Unauthorized     |
-| 403  | Forbidden        |
-| 404  | Not Found        |
-| 500  | Server Error     |
-
----
-
-# Authentication
-
-JWT Bearer Token
-
-Example
-
-```
+```http
 Authorization: Bearer <access_token>
 ```
 
----
+Authentication endpoints:
 
-# Testing
-
-Tests include
-
-- Authentication
-- Permissions
-- CRUD
-- Lead assignment
-- Status changes
-- Notes
-- API validation
-
-Run
-
-```
-python manage.py test
+```http
+POST /api/auth/login/
+POST /api/auth/refresh/
+POST /api/auth/logout/
+GET  /api/auth/me/
 ```
 
 ---
 
-# Local Installation
+## Running Locally
 
-Clone
+### Clone the repository
 
+```bash
+git clone <repository-url>
+cd lead-management-platform
 ```
-git clone <repo>
-```
 
-Create virtual environment
+### Create a virtual environment
 
-```
+```bash
 python -m venv .venv
 ```
 
-Activate
+### Activate the environment
 
-Windows
+**Windows**
 
-```
+```powershell
 .venv\Scripts\activate
 ```
 
-Linux
+**Linux / macOS**
 
-```
+```bash
 source .venv/bin/activate
 ```
 
-Install dependencies
+### Install dependencies
 
-```
+```bash
 pip install -r requirements.txt
 ```
 
-Environment variables
+### Configure environment variables
 
-```
+Create a `.env` file.
+
+```env
 SECRET_KEY=
-
 DEBUG=True
 
-DATABASE_URL=
-
-ALLOWED_HOSTS=
-
-JWT_SECRET=
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=
+DATABASE_HOST=
+DATABASE_PORT=
 ```
 
-Run migrations
+### Apply migrations
 
-```
+```bash
 python manage.py migrate
 ```
 
-Create admin
+### Create a superuser
 
-```
+```bash
 python manage.py createsuperuser
 ```
 
-Run server
+### Run the development server
 
-```
+```bash
 python manage.py runserver
 ```
 
 ---
 
-# Deployment
+## Testing
 
-Backend
+Run all tests:
 
-Render
-
-Frontend
-
-Vercel
-
-Database
-
-PostgreSQL
-
----
-
-# Demo Credentials
-
-Admin
-
-```
-email:
-password:
+```bash
+python manage.py test
 ```
 
-Member
+Run a specific app:
 
-```
-email:
-password:
+```bash
+python manage.py test apps.accounts
+python manage.py test apps.leads
 ```
 
 ---
 
-# Live Demo
+## Project Status
 
-Frontend
+### Completed
 
-```
-Coming Soon
-```
+- Project setup
+- JWT Authentication
+- User management
+- Lead CRUD
+- Notes & Activity models
+- Django Admin
+- OpenAPI documentation
+- Unit tests
 
-Backend
+### In Progress
 
-```
-Coming Soon
-```
-
----
-
-# Footer Requirement
-
-Every page includes the footer
-
-> Built for Training Task
-
-linked to
-
-https://example.com
+- Filtering & Search
+- Business endpoints
+- Role-based permissions
+- Frontend dashboard
+- Deployment
 
 ---
 
-# License
+## Roadmap
 
-MIT
+- Advanced lead filtering
+- Assignment workflow
+- Status workflow
+- Activity timeline
+- Dashboard analytics
+- CSV export
+- Email notifications
+- Docker support
+- GitHub Actions CI/CD
+
+---
+
+## License
+
+This project is licensed under the MIT License.
