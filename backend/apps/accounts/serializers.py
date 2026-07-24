@@ -30,3 +30,15 @@ class LoginSerializer(TokenObtainPairSerializer):
         token["role"] = user.role
 
         return token
+
+
+class UserSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "email",
+            "role",
+        )

@@ -50,15 +50,15 @@
 - [✅] Create model
 - [✅] Validation
 - [✅] Status choices
-- [ ] Assignment
+- [✅] Assignment
 
 ## Notes
 
-- [ ] Note model
+- [✅] Note model
 
 ## Activity
 
-- [ ] Activity model
+- [✅] Activity model
 
 ---
 
