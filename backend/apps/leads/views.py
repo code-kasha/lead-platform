@@ -1,5 +1,7 @@
 # ==============================================================================
-# Views for the Common app
+# Views for the leads app
 # ==============================================================================
 
 from django.shortcuts import render
+
+# Create your views here.

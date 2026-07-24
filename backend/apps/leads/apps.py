@@ -1,5 +1,10 @@
 # ==============================================================================
-# Views for the Common app
+# Leads App Configuration
 # ==============================================================================
 
-from django.shortcuts import render
+
+from django.apps import AppConfig
+
+
+class LeadsConfig(AppConfig):
+    name = "apps.leads"

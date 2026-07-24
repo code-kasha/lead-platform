@@ -1,3 +1,5 @@
-from django.contrib import admin
+# ==============================================================================
+# Admin configuration for the Common model
+# ==============================================================================
 
-# Register your models here.
+from django.contrib import admin

@@ -31,8 +31,8 @@
 
 - [✅] Custom User model
 - [✅] Role field
-- [] JWT Login
-- [] JWT Refresh
+- [✅] JWT Login
+- [✅] JWT Refresh
 - [✅] Password hashing
 - [✅] Authentication middleware
 - [✅] Permission classes
@@ -43,13 +43,13 @@
 
 ## User
 
-- [ ] User model
+- [✅] User model
 
 ## Lead
 
-- [ ] Create model
-- [ ] Validation
-- [ ] Status choices
+- [✅] Create model
+- [✅] Validation
+- [✅] Status choices
 - [ ] Assignment
 
 ## Notes
