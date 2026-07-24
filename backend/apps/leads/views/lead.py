@@ -2,14 +2,35 @@
 # Lead API Views
 # ==============================================================================
 
+from apps.leads.filters import LeadFilter
 from apps.leads.models import Lead
 from apps.leads.serializers import LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 
 class LeadViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = LeadFilter
+
+    search_fields = [
+        "first_name",
+        "last_name",
+        "email",
+        "company",
+    ]
+
+    ordering_fields = [
+        "created_at",
+        "updated_at",
+        "first_name",
+        "last_name",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         return Lead.objects.select_related(
