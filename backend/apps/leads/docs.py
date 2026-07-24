@@ -3,7 +3,13 @@
 # ==============================================================================
 
 from apps.common.docs import BAD_REQUEST, FORBIDDEN, NOT_FOUND, UNAUTHORIZED
-from apps.leads.serializers import AssignLeadSerializer, LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
+from apps.leads.serializers import (
+    AssignLeadSerializer,
+    ChangeLeadStatusSerializer,
+    LeadCreateSerializer,
+    LeadSerializer,
+    LeadUpdateSerializer,
+)
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 
 lead_list = extend_schema(
@@ -119,6 +125,20 @@ lead_assign = extend_schema(
     summary="Assign Lead",
     description="Assign a lead to an active member.",
     request=AssignLeadSerializer,
+    responses={
+        200: LeadSerializer,
+        400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+
+lead_change_status = extend_schema(
+    tags=["Leads"],
+    summary="Change Lead Status",
+    description="Change the status of a lead.",
+    request=ChangeLeadStatusSerializer,
     responses={
         200: LeadSerializer,
         400: BAD_REQUEST,

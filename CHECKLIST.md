@@ -114,7 +114,13 @@
 
 ## Status
 
-- [ ] Change status endpoint
+- [x] Status endpoint
+- [x] Status serializer
+- [x] Status service
+- [x] Status permission
+- [x] Status Swagger
+- [x] Status tests
+- [ ] Status transition rules
 
 ## Notes
 
@@ -161,12 +167,12 @@
 
 - [x] Model tests
 - [x] Validator tests
+- [x] Assignment tests
+- [x] Status tests
 
 ## Remaining
 
 - [ ] CRUD API tests
-- [ ] Assignment tests
-- [ ] Status tests
 - [ ] Notes API tests
 - [ ] Activity API tests
 - [ ] Permission integration tests
@@ -178,13 +184,13 @@
 
 # Phase 11 - Documentation
 
-- [ ] README
+- [x] README
 - [x] Swagger UI
 - [x] ReDoc
 - [x] OpenAPI schema
 - [x] Endpoint documentation
 - [x] Response examples
-- [ ] README API section
+- [x] README API section
 - [ ] Screenshots
 - [ ] Demo credentials
 

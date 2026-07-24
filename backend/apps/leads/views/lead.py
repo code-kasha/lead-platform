@@ -6,12 +6,26 @@ from typing import cast
 
 from apps.accounts.choices import UserRole
 from apps.accounts.models import User
-from apps.leads.docs import lead_assign, lead_create, lead_delete, lead_list, lead_retrieve, lead_update
+from apps.leads.docs import (
+    lead_assign,
+    lead_change_status,
+    lead_create,
+    lead_delete,
+    lead_list,
+    lead_retrieve,
+    lead_update,
+)
 from apps.leads.filters import LeadFilter
 from apps.leads.models import Lead
-from apps.leads.permissions import CanAssignLead, LeadPermission
-from apps.leads.serializers import AssignLeadSerializer, LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
-from apps.leads.services import assign_lead
+from apps.leads.permissions import CanAssignLead, CanChangeStatus, LeadPermission
+from apps.leads.serializers import (
+    AssignLeadSerializer,
+    ChangeLeadStatusSerializer,
+    LeadCreateSerializer,
+    LeadSerializer,
+    LeadUpdateSerializer,
+)
+from apps.leads.services import assign_lead, change_lead_status
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
@@ -30,6 +44,7 @@ from rest_framework.viewsets import ModelViewSet
     partial_update=lead_update,
     destroy=lead_delete,
     assign=lead_assign,
+    status=lead_change_status,
 )
 class LeadViewSet(ModelViewSet):
     """
@@ -118,6 +133,37 @@ class LeadViewSet(ModelViewSet):
         assign_lead(
             lead=lead,
             assigned_to=serializer.validated_data["assigned_to"],
+            performed_by=request.user,
+        )
+
+        return Response(
+            LeadSerializer(
+                lead,
+                context=self.get_serializer_context(),
+            ).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[CanChangeStatus],
+    )
+    def status(self, request, pk=None):
+        """
+        Change the status of a lead.
+        """
+
+        lead = self.get_object()
+
+        serializer = ChangeLeadStatusSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+
+        change_lead_status(
+            lead=lead,
+            status=serializer.validated_data["status"],
             performed_by=request.user,
         )
 

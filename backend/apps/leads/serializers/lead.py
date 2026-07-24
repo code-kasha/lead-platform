@@ -1,8 +1,10 @@
 # ==============================================================================
 # Lead Serializers
 # ==============================================================================
+
 from apps.accounts.models import User
 from apps.accounts.serializers import UserSummarySerializer
+from apps.leads.choices import LeadStatus
 from apps.leads.models import Lead
 from rest_framework import serializers
 
@@ -94,4 +96,15 @@ class AssignLeadSerializer(serializers.Serializer):
             is_active=True,
         ),
         help_text="ID of the user to assign the lead to.",
+    )
+
+
+class ChangeLeadStatusSerializer(serializers.Serializer):
+    """
+    Serializer for changing a lead's status.
+    """
+
+    status = serializers.ChoiceField(
+        choices=LeadStatus.choices,
+        help_text="New status for the lead.",
     )

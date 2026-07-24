@@ -54,8 +54,18 @@ class CanAssignLead(BasePermission):
 
 class CanChangeStatus(BasePermission):
     """
-    Placeholder for lead status workflow permissions.
+    Admins may change any lead.
+    Members may change leads they created or are assigned to.
     """
+
+    message = "You do not have permission to change this lead's status."
 
     def has_permission(self, request, view):
         return request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+
+        if request.user.role == UserRole.ADMIN:
+            return True
+
+        return obj.created_by == request.user or obj.assigned_to == request.user
