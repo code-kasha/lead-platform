@@ -77,7 +77,7 @@
 - [x] Login
 - [x] Refresh
 - [x] Logout
-- [x] Current user
+- [x] Current User
 
 ## Leads
 
@@ -120,7 +120,7 @@
 - [x] Status permission
 - [x] Status Swagger
 - [x] Status tests
-- [ ] Status transition rules
+- [x] Status transition rules
 
 ## Notes
 
@@ -148,7 +148,7 @@
 
 - [x] Automatic activity logging
 - [x] Assignment validation
-- [ ] Status transition rules
+- [x] Status transition rules
 - [ ] Timestamp notes
 - [ ] Duplicate lead detection
 - [ ] Prevent self-assignment (optional)
@@ -172,7 +172,7 @@
 
 ## Remaining
 
-- [ ] CRUD API tests
+- [ ] CRUD API integration tests
 - [ ] Notes API tests
 - [ ] Activity API tests
 - [ ] Permission integration tests
@@ -246,6 +246,21 @@
 - [ ] Footer requirement
 - [ ] Verify permissions
 - [ ] Final testing
+
+---
+
+# Code Quality
+
+- [ ] Resolve Pylance warnings
+- [ ] Resolve Ruff/Flake8 warnings
+- [ ] Resolve Django system check warnings
+- [ ] Resolve drf-spectacular warnings
+- [ ] Improve type hints
+- [ ] Remove dead code/imports
+- [ ] Review serializers
+- [ ] Review permissions
+- [ ] Review services
+- [ ] Review tests
 
 ---
 

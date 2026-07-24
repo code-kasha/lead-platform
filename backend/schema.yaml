@@ -1,0 +1,973 @@
+openapi: 3.0.3
+info:
+  title: Lead Management API
+  version: 1.0.0
+  description: REST API for managing leads, assignments, notes, activities and authentication.
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticate a user using their email address and password. Returns
+        JWT access and refresh tokens.
+      summary: Login
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequestRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+              examples:
+                LoginSuccess:
+                  value:
+                    access: <jwt-access-token>
+                    refresh: <jwt-refresh-token>
+                  summary: Login Success
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Unauthorized:
+                  value:
+                    detail: No active account found with the given credentials
+          description: Authentication credentials are invalid or missing.
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Blacklist the supplied refresh token so it cannot be used to obtain
+        new access tokens.
+      summary: Logout
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '205':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: Generate a new access token using a valid refresh token.
+      summary: Refresh Access Token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+              examples:
+                TokenRefresh:
+                  value:
+                    access: <new-access-token>
+                  summary: Token Refresh
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Unauthorized:
+                  value:
+                    detail: No active account found with the given credentials
+          description: Authentication credentials are invalid or missing.
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Retrieve details of the currently authenticated user.
+      summary: Current User
+      tags:
+      - Authentication
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                User:
+                  value:
+                    id: 1
+                    email: admin@example.com
+                    first_name: Akash
+                    last_name: Damle
+                    role: ADMIN
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+  /api/leads/:
+    get:
+      operationId: leads_list
+      description: Returns a paginated list of leads visible to the authenticated
+        user. Supports search, filtering and ordering.
+      summary: List Leads
+      parameters:
+      - in: query
+        name: assigned_to
+        schema:
+          type: integer
+        description: Filter by assigned member.
+      - in: query
+        name: company
+        schema:
+          type: string
+      - in: query
+        name: created_by
+        schema:
+          type: integer
+        description: Filter by creator.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Order by created_at, updated_at, first_name, last_name or status.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search by first name, last name, email, phone or company.
+      - in: query
+        name: source
+        schema:
+          type: string
+        description: Filter by lead source.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Filter by lead status.
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLeadList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+    post:
+      operationId: leads_create
+      description: Create a new lead. The lead is automatically created with status
+        NEW and is initially unassigned.
+      summary: Create Lead
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+  /api/leads/{id}/:
+    get:
+      operationId: leads_retrieve
+      description: Retrieve a single lead.
+      summary: Retrieve Lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+    put:
+      operationId: leads_update
+      description: Update lead information. Status changes and assignment are handled
+        through dedicated endpoints.
+      summary: Update Lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+    delete:
+      operationId: leads_destroy
+      description: Delete a lead.
+      summary: Delete Lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Lead deleted successfully.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+    patch:
+      operationId: leads_partial_update
+      description: Update lead information. Status changes and assignment are handled
+        through dedicated endpoints.
+      summary: Update Lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+  /api/leads/{id}/assign/:
+    post:
+      operationId: leads_assign_create
+      description: Assign a lead to an active member.
+      summary: Assign Lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignLeadRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignLeadRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssignLeadRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+  /api/leads/{id}/status/:
+    post:
+      operationId: leads_status_create
+      description: Change the status of a lead.
+      summary: Change Lead Status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeLeadStatusRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangeLeadStatusRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangeLeadStatusRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+components:
+  schemas:
+    AccessToken:
+      type: object
+      properties:
+        access:
+          type: string
+          description: New JWT access token.
+      required:
+      - access
+    AssignLeadRequest:
+      type: object
+      properties:
+        assigned_to:
+          type: integer
+          description: ID of the user to assign the lead to.
+      required:
+      - assigned_to
+    ChangeLeadStatusRequest:
+      type: object
+      description: Serializer for changing a lead's status.
+      properties:
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            New status for the lead.
+
+            * `NEW` - New
+            * `CONTACTED` - Contacted
+            * `QUALIFIED` - Qualified
+            * `PROPOSAL` - Proposal
+            * `WON` - Won
+            * `LOST` - Lost
+      required:
+      - status
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error description.
+      required:
+      - detail
+    Lead:
+      type: object
+      description: Serializer used for retrieving leads.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 55
+        last_name:
+          type: string
+          maxLength: 55
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        company:
+          type: string
+          maxLength: 100
+        source:
+          type: string
+          maxLength: 50
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        created_by:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+          description: The user who created the lead.
+        assigned_to:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+          description: The user currently assigned to the lead.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - assigned_to
+      - created_at
+      - created_by
+      - email
+      - first_name
+      - id
+      - last_name
+      - status
+      - updated_at
+    LeadCreateRequest:
+      type: object
+      description: |-
+        Serializer used when creating a new lead.
+
+        Status is automatically set to NEW.
+        Assignment is handled through the dedicated assignment endpoint.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        company:
+          type: string
+          maxLength: 100
+        source:
+          type: string
+          maxLength: 50
+      required:
+      - email
+      - first_name
+      - last_name
+    LeadUpdateRequest:
+      type: object
+      description: |-
+        Serializer used for updating lead information.
+
+        Assignment and status changes are handled through dedicated endpoints.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        company:
+          type: string
+          maxLength: 100
+        source:
+          type: string
+          maxLength: 50
+      required:
+      - email
+      - first_name
+      - last_name
+    LoginRequestRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          description: Registered email address.
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: User password.
+      required:
+      - email
+      - password
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+          description: Refresh token to invalidate.
+      required:
+      - refresh
+    PaginatedLeadList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lead'
+    PatchedLeadUpdateRequest:
+      type: object
+      description: |-
+        Serializer used for updating lead information.
+
+        Assignment and status changes are handled through dedicated endpoints.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 55
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 20
+        company:
+          type: string
+          maxLength: 100
+        source:
+          type: string
+          maxLength: 50
+    StatusEnum:
+      enum:
+      - NEW
+      - CONTACTED
+      - QUALIFIED
+      - PROPOSAL
+      - WON
+      - LOST
+      type: string
+      description: |-
+        * `NEW` - New
+        * `CONTACTED` - Contacted
+        * `QUALIFIED` - Qualified
+        * `PROPOSAL` - Proposal
+        * `WON` - Won
+        * `LOST` - Lost
+    Token:
+      type: object
+      properties:
+        access:
+          type: string
+          description: JWT access token.
+        refresh:
+          type: string
+          description: JWT refresh token.
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique user identifier.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          description: Registered email address.
+        first_name:
+          type: string
+          readOnly: true
+          description: User's first name.
+        last_name:
+          type: string
+          readOnly: true
+          description: User's last name.
+        role:
+          type: string
+          readOnly: true
+          description: Assigned user role.
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+      - role
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: Unique user identifier.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          description: Registered email address.
+        first_name:
+          type: string
+          readOnly: true
+          description: User's first name.
+        last_name:
+          type: string
+          readOnly: true
+          description: User's last name.
+        role:
+          type: string
+          readOnly: true
+          description: Assigned user role.
+      required:
+      - email
+      - first_name
+      - id
+      - last_name
+      - role
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Authentication
+  description: Endpoints for user authentication and JWT token management.
+- name: Leads
+  description: Create, update, assign and manage sales leads.

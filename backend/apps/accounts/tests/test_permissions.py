@@ -2,23 +2,23 @@
 # Permission tests
 # ==============================================================================
 
-from apps.accounts.permissions import IsAdmin, IsMember
+from apps.accounts.permissions import IsAdmin
 from apps.accounts.tests.factories import create_admin, create_user
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
 
 class PermissionTests(TestCase):
+    factory: APIRequestFactory
 
     def setUp(self):
         self.factory = APIRequestFactory()
 
     def test_admin_permission(self):
-
         user = create_admin()
 
         request = self.factory.get("/")
-
+        request = request
         request.user = user
 
         permission = IsAdmin()
@@ -31,11 +31,10 @@ class PermissionTests(TestCase):
         )
 
     def test_member_cannot_access_admin_permission(self):
-
         user = create_user()
 
         request = self.factory.get("/")
-
+        request = request
         request.user = user
 
         permission = IsAdmin()

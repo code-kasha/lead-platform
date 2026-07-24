@@ -3,23 +3,42 @@
 # ==============================================================================
 
 from apps.accounts.models import User
-from apps.leads.choices import ActivityType
+from apps.leads.choices import ActivityType, LeadStatus
+from apps.leads.constants import ALLOWED_STATUS_TRANSITIONS
 from apps.leads.models import Lead, LeadActivity
 from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 
 @transaction.atomic
 def change_lead_status(
     *,
     lead: Lead,
-    status: str,
+    status: LeadStatus,
     performed_by: User,
 ) -> Lead:
     """
     Change the status of a lead and record the activity.
     """
 
-    previous_status = lead.status
+    current_status = LeadStatus(lead.status)
+
+    if current_status == status:
+        raise ValidationError(
+            {
+                "status": "Lead is already in this status.",
+            }
+        )
+
+    allowed = ALLOWED_STATUS_TRANSITIONS.get(
+        current_status,
+        set(),
+    )
+
+    if status not in allowed:
+        raise ValidationError(
+            {"status": (f"Cannot change status from " f"{current_status.label} " f"to " f"{status.label}.")}
+        )
 
     lead.status = status
 
@@ -27,7 +46,7 @@ def change_lead_status(
         update_fields=[
             "status",
             "updated_at",
-        ]
+        ],
     )
 
     LeadActivity.objects.create(
@@ -35,7 +54,12 @@ def change_lead_status(
         user=performed_by,
         activity_type=ActivityType.STATUS_CHANGED,
         description=(
-            f"Status changed from " f"{previous_status} " f"to " f"{status} " f"by " f"{performed_by.get_full_name()}."
+            f"Status changed from "
+            f"{current_status.label} "
+            f"to "
+            f"{status.label} "
+            f"by "
+            f"{performed_by.get_full_name()}."
         ),
     )
 
@@ -54,18 +78,19 @@ def assign_lead(
     """
 
     lead.assigned_to = assigned_to
+
     lead.save(
         update_fields=[
             "assigned_to",
             "updated_at",
-        ]
+        ],
     )
 
     LeadActivity.objects.create(
         lead=lead,
         user=performed_by,
         activity_type=ActivityType.ASSIGNED,
-        description=(f"Lead assigned to {assigned_to.get_full_name()} " f"by {performed_by.get_full_name()}."),
+        description=(f"Lead assigned to " f"{assigned_to.get_full_name()} " f"by " f"{performed_by.get_full_name()}."),
     )
 
     return lead

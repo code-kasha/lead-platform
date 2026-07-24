@@ -57,6 +57,9 @@ class LeadViewSet(ModelViewSet):
     - Ordering
     """
 
+    lookup_field = "pk"
+    lookup_url_kwarg = "pk"
+
     permission_classes = [LeadPermission]
 
     filter_backends = [
@@ -92,6 +95,12 @@ class LeadViewSet(ModelViewSet):
     }
 
     def get_queryset(self):
+        """
+        Return the leads visible to the current user.
+
+        During OpenAPI schema generation there is no authenticated user,
+        so return an empty queryset.
+        """
 
         queryset = Lead.objects.select_related(
             "created_by",
@@ -99,7 +108,11 @@ class LeadViewSet(ModelViewSet):
         )
 
         user = self.request.user
-        user = cast(User, self.request.user)
+
+        if not getattr(user, "is_authenticated", False):
+            return queryset.none()
+
+        user = cast(User, user)
 
         if user.role == UserRole.ADMIN:
             return queryset
@@ -113,7 +126,9 @@ class LeadViewSet(ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        serializer.save(
+            created_by=self.request.user,
+        )
 
     @action(
         detail=True,
@@ -127,7 +142,9 @@ class LeadViewSet(ModelViewSet):
 
         lead = self.get_object()
 
-        serializer = AssignLeadSerializer(data=request.data)
+        serializer = AssignLeadSerializer(
+            data=request.data,
+        )
         serializer.is_valid(raise_exception=True)
 
         assign_lead(

@@ -10,7 +10,15 @@ from apps.leads.serializers import (
     LeadSerializer,
     LeadUpdateSerializer,
 )
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
+
+LEAD_PK_PARAMETER = OpenApiParameter(
+    name="pk",
+    type=OpenApiTypes.INT,
+    location=OpenApiParameter.PATH,
+    description="Unique lead identifier.",
+)
 
 lead_list = extend_schema(
     tags=["Leads"],
@@ -68,6 +76,7 @@ lead_retrieve = extend_schema(
     tags=["Leads"],
     summary="Retrieve Lead",
     description="Retrieve a single lead.",
+    parameters=[LEAD_PK_PARAMETER],
     responses={
         200: LeadSerializer,
         401: UNAUTHORIZED,
@@ -97,6 +106,7 @@ lead_update = extend_schema(
     summary="Update Lead",
     description=("Update lead information. " "Status changes and assignment are handled through dedicated endpoints."),
     request=LeadUpdateSerializer,
+    parameters=[LEAD_PK_PARAMETER],
     responses={
         200: LeadSerializer,
         400: BAD_REQUEST,
@@ -111,6 +121,7 @@ lead_delete = extend_schema(
     tags=["Leads"],
     summary="Delete Lead",
     description="Delete a lead.",
+    parameters=[LEAD_PK_PARAMETER],
     responses={
         204: OpenApiResponse(description="Lead deleted successfully."),
         401: UNAUTHORIZED,
@@ -125,6 +136,7 @@ lead_assign = extend_schema(
     summary="Assign Lead",
     description="Assign a lead to an active member.",
     request=AssignLeadSerializer,
+    parameters=[LEAD_PK_PARAMETER],
     responses={
         200: LeadSerializer,
         400: BAD_REQUEST,
@@ -138,6 +150,7 @@ lead_change_status = extend_schema(
     tags=["Leads"],
     summary="Change Lead Status",
     description="Change the status of a lead.",
+    parameters=[LEAD_PK_PARAMETER],
     request=ChangeLeadStatusSerializer,
     responses={
         200: LeadSerializer,
