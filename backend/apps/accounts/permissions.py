@@ -1,16 +1,21 @@
 # ==============================================================================
-# Permissions for the User model
+# Role-based Permissions
 # ==============================================================================
 
-from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework.permissions import BasePermission
 
 from .choices import UserRole
 
 
 class IsAdmin(BasePermission):
+    """
+    Allows access only to administrators.
+    """
+
+    message = "Administrator privileges are required."
 
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+        return request.user.is_authenticated and request.user.role == UserRole.ADMIN
 
 
 class IsMember(BasePermission):
@@ -18,21 +23,19 @@ class IsMember(BasePermission):
     Allows access only to members.
     """
 
-    message = "You do not have permission to perform this action."
+    message = "Member privileges are required."
 
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.role == UserRole.MEMBER
 
 
-class IsAdminOrReadOnly(BasePermission):
+class IsAdminOrMember(BasePermission):
     """
-    Read for everyone.
-    Write only for admins.
+    Allows access to any authenticated user.
     """
 
     def has_permission(self, request, view):
-
-        if request.method in SAFE_METHODS:
-            return True
-
-        return request.user.is_authenticated and request.user.role == UserRole.ADMIN
+        return request.user.is_authenticated and request.user.role in (
+            UserRole.ADMIN,
+            UserRole.MEMBER,
+        )

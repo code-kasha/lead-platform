@@ -2,11 +2,16 @@
 # Lead API Views
 # ==============================================================================
 
+from typing import cast
+
+from apps.accounts.choices import UserRole
+from apps.accounts.models import User
 from apps.leads.docs import lead_create, lead_delete, lead_list, lead_retrieve, lead_update
 from apps.leads.filters import LeadFilter
 from apps.leads.models import Lead
 from apps.leads.permissions import LeadPermission
 from apps.leads.serializers import LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -26,20 +31,27 @@ class LeadViewSet(ModelViewSet):
     CRUD operations for leads.
 
     Supports:
-    - search
-    - filtering
-    - ordering
-    - pagination
+    - Pagination
+    - Search
+    - Filtering
+    - Ordering
     """
 
     permission_classes = [LeadPermission]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
     filterset_class = LeadFilter
 
     search_fields = [
         "first_name",
         "last_name",
         "email",
+        "phone",
         "company",
     ]
 
@@ -48,24 +60,37 @@ class LeadViewSet(ModelViewSet):
         "updated_at",
         "first_name",
         "last_name",
+        "status",
     ]
 
     ordering = ["-created_at"]
 
+    serializer_classes = {
+        "create": LeadCreateSerializer,
+        "update": LeadUpdateSerializer,
+        "partial_update": LeadUpdateSerializer,
+    }
+
     def get_queryset(self):
-        return Lead.objects.select_related(
+
+        queryset = Lead.objects.select_related(
             "created_by",
             "assigned_to",
-        ).order_by("-created_at")
+        )
+
+        user = self.request.user
+        user = cast(User, self.request.user)
+
+        if user.role == UserRole.ADMIN:
+            return queryset
+
+        return queryset.filter(Q(created_by=user) | Q(assigned_to=user)).distinct()
 
     def get_serializer_class(self):
-        if self.action == "create":
-            return LeadCreateSerializer
-
-        if self.action in ("update", "partial_update"):
-            return LeadUpdateSerializer
-
-        return LeadSerializer
+        return self.serializer_classes.get(
+            self.action,
+            LeadSerializer,
+        )
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
