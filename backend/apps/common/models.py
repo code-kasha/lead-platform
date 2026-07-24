@@ -7,9 +7,7 @@ from django.db import models
 
 
 class Base(models.Model):
-    """
-    Base model that provides common fields for all models.
-    """
+    """Provide shared timestamp fields for project models."""
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
