@@ -12,4 +12,5 @@ urlpatterns = [
         "api/auth/",
         include("apps.accounts.urls"),
     ),
+    path("api/leads/", include("apps.leads.urls")),
 ]
