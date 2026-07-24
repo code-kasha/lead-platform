@@ -17,6 +17,7 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
     "DEFAULT_PAGINATION_CLASS": "apps.common.pagination.DefaultPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 20,
 }
 

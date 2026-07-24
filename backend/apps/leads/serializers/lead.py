@@ -9,8 +9,8 @@ from rest_framework import serializers
 
 
 class LeadSerializer(serializers.ModelSerializer):
-    created_by = UserSummarySerializer(read_only=True)
-    assigned_to = UserSummarySerializer(read_only=True)
+    created_by = UserSummarySerializer(read_only=True, help_text="The user who created the lead.")
+    assigned_to = UserSummarySerializer(read_only=True, help_text="The user to whom the lead is assigned.")
 
     class Meta:
         model = Lead
@@ -41,6 +41,7 @@ class LeadCreateSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         required=False,
         allow_null=True,
+        help_text="The user to whom the lead is assigned.",
     )
 
     class Meta:
@@ -62,6 +63,7 @@ class LeadUpdateSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(),
         required=False,
         allow_null=True,
+        help_text="The user to whom the lead is assigned.",
     )
 
     class Meta:

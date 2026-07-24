@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 
 class LeadNoteSerializer(serializers.ModelSerializer):
-    created_by = serializers.StringRelatedField()
+    created_by = serializers.StringRelatedField(help_text="The user who created the note.", read_only=True)
 
     class Meta:
         model = LeadNote

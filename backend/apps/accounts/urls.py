@@ -1,25 +1,9 @@
-# ==============================================================================
-# URLs for the Accounts App
-# ==============================================================================
-
 from django.urls import path
 
-from .views import CurrentUserView, LoginView, RefreshTokenView
+from .views import LoginView, MeView, RefreshView
 
 urlpatterns = [
-    path(
-        "login/",
-        LoginView.as_view(),
-        name="login",
-    ),
-    path(
-        "refresh/",
-        RefreshTokenView.as_view(),
-        name="refresh",
-    ),
-    path(
-        "me/",
-        CurrentUserView.as_view(),
-        name="me",
-    ),
+    path("login/", LoginView.as_view(), name="login"),
+    path("refresh/", RefreshView.as_view(), name="refresh"),
+    path("me/", MeView.as_view(), name="me"),
 ]

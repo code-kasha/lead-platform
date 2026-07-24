@@ -35,6 +35,8 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
 ]
 
 LOCAL_APPS = [
