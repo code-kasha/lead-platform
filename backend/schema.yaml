@@ -162,6 +162,46 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Authentication credentials are invalid or missing.
   /api/leads/:
+    post:
+      operationId: leads_create
+      description: Create a new lead. The lead is automatically created with status
+        NEW and is initially unassigned.
+      summary: Create Lead
+      tags:
+      - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
     get:
       operationId: leads_list
       description: Returns a paginated list of leads visible to the authenticated
@@ -231,51 +271,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Authentication credentials are invalid or missing.
-    post:
-      operationId: leads_create
-      description: Create a new lead. The lead is automatically created with status
-        NEW and is initially unassigned.
-      summary: Create Lead
-      tags:
-      - Leads
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LeadCreateRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LeadCreateRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LeadCreateRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lead'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: The request could not be processed.
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Authentication credentials are invalid or missing.
   /api/leads/{id}/:
-    get:
-      operationId: leads_retrieve
-      description: Retrieve a single lead.
-      summary: Retrieve Lead
+    patch:
+      operationId: leads_partial_update
+      description: Update lead information. Status changes and assignment are handled
+        through dedicated endpoints.
+      summary: Update Lead
       parameters:
       - in: path
         name: id
@@ -291,6 +292,17 @@ paths:
         required: true
       tags:
       - Leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -300,6 +312,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Lead'
           description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
         '401':
           content:
             application/json:
@@ -425,11 +443,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Requested resource was not found.
-    patch:
-      operationId: leads_partial_update
-      description: Update lead information. Status changes and assignment are handled
-        through dedicated endpoints.
-      summary: Update Lead
+    get:
+      operationId: leads_retrieve
+      description: Retrieve a single lead.
+      summary: Retrieve Lead
       parameters:
       - in: path
         name: id
@@ -445,17 +462,6 @@ paths:
         required: true
       tags:
       - Leads
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedLeadUpdateRequest'
       security:
       - jwtAuth: []
       responses:
@@ -465,12 +471,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Lead'
           description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: The request could not be processed.
         '401':
           content:
             application/json:
@@ -623,6 +623,7 @@ components:
   schemas:
     AccessToken:
       type: object
+      description: Serialize a refreshed JWT access token.
       properties:
         access:
           type: string
@@ -631,6 +632,7 @@ components:
       - access
     AssignLeadRequest:
       type: object
+      description: Validate the member selected to receive a lead assignment.
       properties:
         assigned_to:
           type: integer
@@ -639,7 +641,7 @@ components:
       - assigned_to
     ChangeLeadStatusRequest:
       type: object
-      description: Serializer for changing a lead's status.
+      description: Validate a requested lead status change.
       properties:
         status:
           allOf:
@@ -657,6 +659,7 @@ components:
       - status
     Error:
       type: object
+      description: Serialize standard API error details.
       properties:
         detail:
           type: string
@@ -665,7 +668,7 @@ components:
       - detail
     Lead:
       type: object
-      description: Serializer used for retrieving leads.
+      description: Serialize lead details for retrieval.
       properties:
         id:
           type: integer
@@ -723,11 +726,7 @@ components:
       - updated_at
     LeadCreateRequest:
       type: object
-      description: |-
-        Serializer used when creating a new lead.
-
-        Status is automatically set to NEW.
-        Assignment is handled through the dedicated assignment endpoint.
+      description: Validate the fields accepted when creating a lead.
       properties:
         first_name:
           type: string
@@ -757,10 +756,7 @@ components:
       - last_name
     LeadUpdateRequest:
       type: object
-      description: |-
-        Serializer used for updating lead information.
-
-        Assignment and status changes are handled through dedicated endpoints.
+      description: Validate the fields accepted when updating a lead.
       properties:
         first_name:
           type: string
@@ -790,6 +786,7 @@ components:
       - last_name
     LoginRequestRequest:
       type: object
+      description: Validate credentials submitted for authentication.
       properties:
         email:
           type: string
@@ -806,6 +803,7 @@ components:
       - password
     LogoutRequest:
       type: object
+      description: Validate a refresh token for invalidation.
       properties:
         refresh:
           type: string
@@ -838,10 +836,7 @@ components:
             $ref: '#/components/schemas/Lead'
     PatchedLeadUpdateRequest:
       type: object
-      description: |-
-        Serializer used for updating lead information.
-
-        Assignment and status changes are handled through dedicated endpoints.
+      description: Validate the fields accepted when updating a lead.
       properties:
         first_name:
           type: string
@@ -883,6 +878,7 @@ components:
         * `LOST` - Lost
     Token:
       type: object
+      description: Serialize JWT access and refresh tokens.
       properties:
         access:
           type: string
@@ -903,6 +899,7 @@ components:
       - refresh
     User:
       type: object
+      description: Serialize read-only user account details.
       properties:
         id:
           type: integer
@@ -933,6 +930,7 @@ components:
       - role
     UserSummary:
       type: object
+      description: Serialize the standard summary of a user account.
       properties:
         id:
           type: integer
