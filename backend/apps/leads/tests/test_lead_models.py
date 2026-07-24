@@ -1,7 +1,6 @@
 # ==============================================================================
-# Model Tests
+# Lead Model Tests
 # ==============================================================================
-
 
 from apps.accounts.tests.factories import create_user
 from apps.leads.choices import LeadStatus
@@ -14,15 +13,8 @@ class LeadModelTests(TestCase):
     def test_create_lead(self):
         lead = create_lead()
 
-        self.assertEqual(
-            lead.first_name,
-            "John",
-        )
-
-        self.assertEqual(
-            lead.email,
-            "john.doe@test.com",
-        )
+        self.assertEqual(lead.first_name, "John")
+        self.assertEqual(lead.last_name, "Doe")
 
     def test_default_status_is_new(self):
         lead = create_lead()
@@ -32,7 +24,7 @@ class LeadModelTests(TestCase):
             LeadStatus.NEW,
         )
 
-    def test_assign_lead_to_member(self):
+    def test_assign_lead(self):
         member = create_user(
             email="member@test.com",
         )
@@ -46,7 +38,7 @@ class LeadModelTests(TestCase):
             member,
         )
 
-    def test_created_by_is_saved(self):
+    def test_created_by(self):
         creator = create_user(
             email="creator@test.com",
         )
@@ -69,17 +61,11 @@ class LeadModelTests(TestCase):
         )
 
     def test_ordering(self):
-        create_lead(
-            email="first@test.com",
-        )
+        create_lead()
 
-        newest = create_lead(
-            email="second@test.com",
-        )
-
-        first = newest.__class__.objects.first()
+        newest = create_lead()
 
         self.assertEqual(
-            first.email,
-            "second@test.com",
+            newest.__class__.objects.first(),
+            newest,
         )

@@ -6,7 +6,7 @@ from apps.common.models import Base
 from django.conf import settings
 from django.db import models
 
-from .choices import LeadStatus
+from .choices import ActivityType, LeadStatus
 from .validators import validate_phone
 
 
@@ -59,3 +59,59 @@ class Lead(Base):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+
+class LeadNote(Base):
+    lead = models.ForeignKey(
+        "Lead",
+        on_delete=models.CASCADE,
+        related_name="notes",
+    )
+
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="lead_notes",
+    )
+
+    content = models.TextField()
+
+    class Meta:
+        db_table = "lead_notes"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Note by {self.author} on {self.lead}"
+
+
+class LeadActivity(Base):
+
+    lead = models.ForeignKey(
+        "Lead",
+        on_delete=models.CASCADE,
+        related_name="activities",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="lead_activities",
+    )
+
+    activity_type = models.CharField(
+        max_length=30,
+        choices=ActivityType.choices,
+    )
+
+    description = models.TextField()
+
+    class Meta:
+        db_table = "lead_activities"
+        ordering = ["-created_at"]
+        verbose_name = "Lead Activity"
+        verbose_name_plural = "Lead Activities"
+
+    def __str__(self):
+        return f"{self.activity_type} - {self.lead}"

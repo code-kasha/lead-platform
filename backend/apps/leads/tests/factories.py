@@ -1,18 +1,18 @@
 # ==============================================================================
-# Factories for the Lead tests
+# Factories for the Lead application
 # ==============================================================================
 
 import uuid
 
 from apps.accounts.tests.factories import create_user
-from apps.leads.choices import LeadStatus
-from apps.leads.models import Lead
+from apps.leads.choices import ActivityType, LeadStatus
+from apps.leads.models import Lead, LeadActivity, LeadNote
 
 
 def create_lead(
     first_name="John",
     last_name="Doe",
-    email="john.doe@test.com",
+    email=None,
     phone="+919876543210",
     company="Acme Inc.",
     source="Website",
@@ -20,6 +20,9 @@ def create_lead(
     created_by=None,
     assigned_to=None,
 ):
+    if email is None:
+        email = f"{uuid.uuid4()}@test.com"
+
     if created_by is None:
         created_by = create_user(
             email=f"{uuid.uuid4()}@test.com",
@@ -35,4 +38,46 @@ def create_lead(
         status=status,
         created_by=created_by,
         assigned_to=assigned_to,
+    )
+
+
+def create_note(
+    lead=None,
+    author=None,
+    content="Test note",
+):
+    if lead is None:
+        lead = create_lead()
+
+    if author is None:
+        author = create_user(
+            email=f"{uuid.uuid4()}@test.com",
+        )
+
+    return LeadNote.objects.create(
+        lead=lead,
+        author=author,
+        content=content,
+    )
+
+
+def create_activity(
+    lead=None,
+    user=None,
+    activity_type=ActivityType.CREATED,
+    description="Lead created",
+):
+    if lead is None:
+        lead = create_lead()
+
+    if user is None:
+        user = create_user(
+            email=f"{uuid.uuid4()}@test.com",
+        )
+
+    return LeadActivity.objects.create(
+        lead=lead,
+        user=user,
+        activity_type=activity_type,
+        description=description,
     )
