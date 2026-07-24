@@ -7,6 +7,7 @@ from typing import cast
 from apps.accounts.choices import UserRole
 from apps.accounts.models import User
 from apps.leads.docs import (
+    lead_add_note,
     lead_assign,
     lead_change_status,
     lead_create,
@@ -22,10 +23,12 @@ from apps.leads.serializers import (
     AssignLeadSerializer,
     ChangeLeadStatusSerializer,
     LeadCreateSerializer,
+    LeadNoteCreateSerializer,
+    LeadNoteSerializer,
     LeadSerializer,
     LeadUpdateSerializer,
 )
-from apps.leads.services import assign_lead, change_lead_status
+from apps.leads.services import add_lead_note, assign_lead, change_lead_status
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
@@ -45,6 +48,7 @@ from rest_framework.viewsets import ModelViewSet
     destroy=lead_delete,
     assign=lead_assign,
     status=lead_change_status,
+    add_note=lead_add_note,
 )
 class LeadViewSet(ModelViewSet):
     """Provide lead CRUD operations, filtering, search, and ordering."""
@@ -177,4 +181,39 @@ class LeadViewSet(ModelViewSet):
                 context=self.get_serializer_context(),
             ).data,
             status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        permission_classes=[CanChangeStatus],
+        url_path="notes",
+    )
+    def add_note(self, request, pk=None):
+        """
+        Add a note to a lead.
+        """
+
+        lead = self.get_object()
+
+        serializer = LeadNoteCreateSerializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        note = add_lead_note(
+            lead=lead,
+            content=serializer.validated_data["content"],
+            author=request.user,
+        )
+
+        return Response(
+            LeadNoteSerializer(
+                note,
+                context=self.get_serializer_context(),
+            ).data,
+            status=status.HTTP_201_CREATED,
         )

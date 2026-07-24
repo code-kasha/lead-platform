@@ -10,7 +10,7 @@ from .lead import (
     LeadSerializer,
     LeadUpdateSerializer,
 )
-from .note import LeadNoteSerializer
+from .note import LeadNoteCreateSerializer, LeadNoteSerializer, LeadNoteUpdateSerializer
 
 __all__ = [
     "AssignLeadSerializer",
@@ -19,5 +19,7 @@ __all__ = [
     "LeadCreateSerializer",
     "LeadUpdateSerializer",
     "LeadNoteSerializer",
+    "LeadNoteCreateSerializer",
+    "LeadNoteUpdateSerializer",
     "LeadActivitySerializer",
 ]

@@ -5,64 +5,39 @@
 from apps.accounts.models import User
 from apps.leads.choices import ActivityType, LeadStatus
 from apps.leads.constants import ALLOWED_STATUS_TRANSITIONS
-from apps.leads.models import Lead, LeadActivity
+from apps.leads.models import Lead, LeadActivity, LeadNote
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-# @transaction.atomic
-# def change_lead_status(
-#    *,
-#    lead: Lead,
-#    status: LeadStatus,
-#    performed_by: User,
-# ) -> Lead:
-#    """Change a lead's status and record the resulting activity."""
 
-#    current_status = LeadStatus(lead.status)
+@transaction.atomic
+def add_lead_note(
+    *,
+    lead: Lead,
+    content: str,
+    author: User,
+) -> LeadNote:
+    """
+    Create a note for a lead and record the activity.
+    """
 
-#    if current_status == status:
-#        raise ValidationError(
-#            {
-#                "status": "Lead is already in this status.",
-#            }
-#        )
+    note = LeadNote.objects.create(
+        lead=lead,
+        content=content,
+        author=author,
+    )
 
-#    allowed = ALLOWED_STATUS_TRANSITIONS.get(
-#        current_status,
-#        set(),
-#    )
+    LeadActivity.objects.create(
+        lead=lead,
+        user=author,
+        activity_type=ActivityType.NOTE_ADDED,
+        description=f"{author.get_full_name()} added a note.",
+    )
 
-#    if status not in allowed:
-#        raise ValidationError(
-#            {"status": (f"Cannot change status from " f"{current_status.label} " f"to " f"{status.label}.")}
-#        )
-
-#    lead.status = status
-
-#    lead.save(
-#        update_fields=[
-#            "status",
-#            "updated_at",
-#        ],
-#    )
-
-#    LeadActivity.objects.create(
-#        lead=lead,
-#        user=performed_by,
-#        activity_type=ActivityType.STATUS_CHANGED,
-#        description=(
-#            f"Status changed from "
-#            f"{current_status.label} "
-#            f"to "
-#            f"{status.label} "
-#            f"by "
-#            f"{performed_by.get_full_name()}."
-#        ),
-#    )
-
-#    return lead
+    return note
 
 
+@transaction.atomic
 def change_lead_status(
     *,
     lead: Lead,
@@ -126,7 +101,9 @@ def assign_lead(
     assigned_to: User,
     performed_by: User,
 ) -> Lead:
-    """Assign a lead and record the resulting activity."""
+    """
+    Assign a lead to a member and record the activity.
+    """
 
     lead.assigned_to = assigned_to
 

@@ -7,6 +7,8 @@ from apps.leads.serializers import (
     AssignLeadSerializer,
     ChangeLeadStatusSerializer,
     LeadCreateSerializer,
+    LeadNoteCreateSerializer,
+    LeadNoteSerializer,
     LeadSerializer,
     LeadUpdateSerializer,
 )
@@ -154,6 +156,20 @@ lead_change_status = extend_schema(
     request=ChangeLeadStatusSerializer,
     responses={
         200: LeadSerializer,
+        400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+
+lead_add_note = extend_schema(
+    tags=["Leads"],
+    summary="Add Lead Note",
+    description="Create a note for a lead.",
+    request=LeadNoteCreateSerializer,
+    responses={
+        201: LeadNoteSerializer,
         400: BAD_REQUEST,
         401: UNAUTHORIZED,
         403: FORBIDDEN,

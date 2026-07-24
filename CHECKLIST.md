@@ -124,7 +124,7 @@
 
 ## Notes
 
-- [ ] Add note
+- [x] Add note
 - [ ] Edit note
 - [ ] Delete note
 - [ ] List notes
