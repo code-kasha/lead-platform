@@ -13,6 +13,7 @@ from apps.leads.docs import (
     lead_create,
     lead_delete,
     lead_list,
+    lead_list_notes,
     lead_retrieve,
     lead_update,
 )
@@ -49,6 +50,7 @@ from rest_framework.viewsets import ModelViewSet
     assign=lead_assign,
     status=lead_change_status,
     add_note=lead_add_note,
+    list_notes=lead_list_notes,
 )
 class LeadViewSet(ModelViewSet):
     """Provide lead CRUD operations, filtering, search, and ordering."""
@@ -216,4 +218,28 @@ class LeadViewSet(ModelViewSet):
                 context=self.get_serializer_context(),
             ).data,
             status=status.HTTP_201_CREATED,
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[CanChangeStatus],
+        url_path="notes/list",
+    )
+    def list_notes(self, request, pk=None):
+        """
+        List all notes for a lead.
+        """
+
+        lead = self.get_object()
+
+        serializer = LeadNoteSerializer(
+            lead.notes.all(),
+            many=True,
+            context=self.get_serializer_context(),
+        )
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
         )

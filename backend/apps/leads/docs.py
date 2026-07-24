@@ -176,3 +176,15 @@ lead_add_note = extend_schema(
         404: NOT_FOUND,
     },
 )
+
+lead_list_notes = extend_schema(
+    tags=["Leads"],
+    summary="List Lead Notes",
+    description="Retrieve all notes for a lead.",
+    responses={
+        200: LeadNoteSerializer(many=True),
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
