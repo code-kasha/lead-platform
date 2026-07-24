@@ -13,7 +13,6 @@ __pycache__/
 *.pyd
 *.pyo
 backend/apps/
-backend/config/settings/
 
 # ==============================================================================
 # Virtual Environment
