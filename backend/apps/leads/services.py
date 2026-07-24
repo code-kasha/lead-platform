@@ -17,9 +17,7 @@ def change_lead_status(
     status: LeadStatus,
     performed_by: User,
 ) -> Lead:
-    """
-    Change the status of a lead and record the activity.
-    """
+    """Change a lead's status and record the resulting activity."""
 
     current_status = LeadStatus(lead.status)
 
@@ -73,9 +71,7 @@ def assign_lead(
     assigned_to: User,
     performed_by: User,
 ) -> Lead:
-    """
-    Assign a lead to a member and record the activity.
-    """
+    """Assign a lead and record the resulting activity."""
 
     lead.assigned_to = assigned_to
 

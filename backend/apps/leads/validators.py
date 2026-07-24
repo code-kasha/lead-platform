@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 
 
 def validate_phone(value):
+    """Ensure phone numbers contain only digits and an optional plus sign."""
 
     if value and not value.replace("+", "").isdigit():
 

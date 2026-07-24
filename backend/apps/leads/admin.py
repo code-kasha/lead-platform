@@ -9,6 +9,7 @@ from .models import Lead, LeadActivity, LeadNote
 
 @admin.register(Lead)
 class LeadAdmin(admin.ModelAdmin):
+    """Configure lead management in the Django admin."""
 
     list_display = (
         "first_name",
@@ -34,6 +35,8 @@ class LeadAdmin(admin.ModelAdmin):
 
 @admin.register(LeadNote)
 class LeadNoteAdmin(admin.ModelAdmin):
+    """Configure lead note management in the Django admin."""
+
     list_display = (
         "lead",
         "author",
@@ -43,6 +46,8 @@ class LeadNoteAdmin(admin.ModelAdmin):
 
 @admin.register(LeadActivity)
 class LeadActivityAdmin(admin.ModelAdmin):
+    """Configure lead activity management in the Django admin."""
+
     list_display = (
         "lead",
         "activity_type",

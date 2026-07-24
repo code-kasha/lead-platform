@@ -7,6 +7,8 @@ from rest_framework import serializers
 
 
 class LeadActivitySerializer(serializers.ModelSerializer):
+    """Serialize activities recorded for leads."""
+
     created_by = serializers.StringRelatedField(help_text="The user who created the activity.", read_only=True)
 
     class Meta:

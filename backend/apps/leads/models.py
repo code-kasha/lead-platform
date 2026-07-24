@@ -11,6 +11,8 @@ from .validators import validate_phone
 
 
 class Lead(Base):
+    """Store contact information and workflow state for a sales lead."""
+
     first_name = models.CharField(max_length=55)
 
     last_name = models.CharField(max_length=55)
@@ -62,6 +64,8 @@ class Lead(Base):
 
 
 class LeadNote(Base):
+    """Store a note associated with a lead."""
+
     lead = models.ForeignKey(
         "Lead",
         on_delete=models.CASCADE,
@@ -86,6 +90,7 @@ class LeadNote(Base):
 
 
 class LeadActivity(Base):
+    """Record an auditable event in a lead's lifecycle."""
 
     lead = models.ForeignKey(
         "Lead",

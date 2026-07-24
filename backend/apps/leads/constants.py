@@ -1,3 +1,7 @@
+# ==============================================================================
+# Lead Status Transition Rules
+# ==============================================================================
+
 from apps.leads.choices import LeadStatus
 
 ALLOWED_STATUS_TRANSITIONS: dict[

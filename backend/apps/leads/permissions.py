@@ -7,63 +7,61 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class LeadPermission(BasePermission):
-    """
-    Object-level permissions for Lead CRUD operations.
-    """
+    """Control access to lead CRUD operations."""
 
     message = "You do not have permission to access this lead."
 
     def has_permission(self, request, view):
+        """Return whether the request is authenticated."""
+
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
+        """Return whether the user may access the specified lead."""
 
-        # Administrators have unrestricted access.
         if request.user.role == UserRole.ADMIN:
             return True
 
-        # Only members are supported beyond this point.
         if request.user.role != UserRole.MEMBER:
             return False
 
-        # Members may view leads they created or that are assigned to them.
         if request.method in SAFE_METHODS:
             return obj.created_by == request.user or obj.assigned_to == request.user
 
-        # Members may update leads they created or that are assigned to them.
         if request.method in ("PUT", "PATCH"):
             return obj.created_by == request.user or obj.assigned_to == request.user
 
-        # Members cannot delete leads.
         return False
 
 
 class CanAssignLead(BasePermission):
-    """
-    Only administrators can assign leads.
-    """
+    """Allow only administrators to assign leads."""
 
     message = "Only administrators can assign leads."
 
     def has_permission(self, request, view):
+        """Return whether the request user is an administrator."""
+
         return request.user.is_authenticated and request.user.role == UserRole.ADMIN
 
     def has_object_permission(self, request, view, obj):
+        """Apply the administrator requirement to object access."""
+
         return self.has_permission(request, view)
 
 
 class CanChangeStatus(BasePermission):
-    """
-    Admins may change any lead.
-    Members may change leads they created or are assigned to.
-    """
+    """Control which users may change a lead's status."""
 
     message = "You do not have permission to change this lead's status."
 
     def has_permission(self, request, view):
+        """Return whether the request is authenticated."""
+
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
+        """Return whether the user may change the lead's status."""
 
         if request.user.role == UserRole.ADMIN:
             return True

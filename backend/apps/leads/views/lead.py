@@ -47,15 +47,7 @@ from rest_framework.viewsets import ModelViewSet
     status=lead_change_status,
 )
 class LeadViewSet(ModelViewSet):
-    """
-    CRUD operations for leads.
-
-    Supports:
-    - Pagination
-    - Search
-    - Filtering
-    - Ordering
-    """
+    """Provide lead CRUD operations, filtering, search, and ordering."""
 
     lookup_field = "pk"
     lookup_url_kwarg = "pk"
@@ -95,12 +87,7 @@ class LeadViewSet(ModelViewSet):
     }
 
     def get_queryset(self):
-        """
-        Return the leads visible to the current user.
-
-        During OpenAPI schema generation there is no authenticated user,
-        so return an empty queryset.
-        """
+        """Return leads visible to the current user or an empty schema queryset."""
 
         queryset = Lead.objects.select_related(
             "created_by",
@@ -120,12 +107,16 @@ class LeadViewSet(ModelViewSet):
         return queryset.filter(Q(created_by=user) | Q(assigned_to=user)).distinct()
 
     def get_serializer_class(self):
+        """Return the serializer appropriate for the current action."""
+
         return self.serializer_classes.get(
             self.action,
             LeadSerializer,
         )
 
     def perform_create(self, serializer):
+        """Create a lead owned by the authenticated user."""
+
         serializer.save(
             created_by=self.request.user,
         )
@@ -136,9 +127,7 @@ class LeadViewSet(ModelViewSet):
         permission_classes=[CanAssignLead],
     )
     def assign(self, request, pk=None):
-        """
-        Assign a lead to a member.
-        """
+        """Assign the selected lead to an active member."""
 
         lead = self.get_object()
 
@@ -167,9 +156,7 @@ class LeadViewSet(ModelViewSet):
         permission_classes=[CanChangeStatus],
     )
     def status(self, request, pk=None):
-        """
-        Change the status of a lead.
-        """
+        """Change the selected lead's status."""
 
         lead = self.get_object()
 

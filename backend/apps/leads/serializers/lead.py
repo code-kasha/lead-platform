@@ -10,9 +10,7 @@ from rest_framework import serializers
 
 
 class LeadSerializer(serializers.ModelSerializer):
-    """
-    Serializer used for retrieving leads.
-    """
+    """Serialize lead details for retrieval."""
 
     created_by = UserSummarySerializer(
         read_only=True,
@@ -52,12 +50,7 @@ class LeadSerializer(serializers.ModelSerializer):
 
 
 class LeadCreateSerializer(serializers.ModelSerializer):
-    """
-    Serializer used when creating a new lead.
-
-    Status is automatically set to NEW.
-    Assignment is handled through the dedicated assignment endpoint.
-    """
+    """Validate the fields accepted when creating a lead."""
 
     class Meta:
         model = Lead
@@ -72,11 +65,7 @@ class LeadCreateSerializer(serializers.ModelSerializer):
 
 
 class LeadUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer used for updating lead information.
-
-    Assignment and status changes are handled through dedicated endpoints.
-    """
+    """Validate the fields accepted when updating a lead."""
 
     class Meta:
         model = Lead
@@ -91,6 +80,8 @@ class LeadUpdateSerializer(serializers.ModelSerializer):
 
 
 class AssignLeadSerializer(serializers.Serializer):
+    """Validate the member selected to receive a lead assignment."""
+
     assigned_to = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(
             is_active=True,
@@ -100,9 +91,7 @@ class AssignLeadSerializer(serializers.Serializer):
 
 
 class ChangeLeadStatusSerializer(serializers.Serializer):
-    """
-    Serializer for changing a lead's status.
-    """
+    """Validate a requested lead status change."""
 
     status = serializers.ChoiceField(
         choices=LeadStatus.choices,
