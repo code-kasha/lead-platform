@@ -1,3 +1,7 @@
+# ==============================================================================
+# Permissions for the User model
+# ==============================================================================
+
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from .choices import UserRole

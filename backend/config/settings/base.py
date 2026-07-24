@@ -32,6 +32,8 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     "django_extensions",
+    "rest_framework",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 LOCAL_APPS = [

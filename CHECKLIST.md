@@ -29,13 +29,13 @@
 
 # Phase 3 - Authentication
 
-- [ ] Custom User model
-- [ ] Role field
-- [ ] JWT Login
-- [ ] JWT Refresh
-- [ ] Password hashing
-- [ ] Authentication middleware
-- [ ] Permission classes
+- [✅] Custom User model
+- [✅] Role field
+- [] JWT Login
+- [] JWT Refresh
+- [✅] Password hashing
+- [✅] Authentication middleware
+- [✅] Permission classes
 
 ---
 
