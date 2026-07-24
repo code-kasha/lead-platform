@@ -1,8 +1,9 @@
 from .activity import LeadActivitySerializer
-from .lead import LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
+from .lead import AssignLeadSerializer, LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
 from .note import LeadNoteSerializer
 
 __all__ = [
+    "AssignLeadSerializer",
     "LeadSerializer",
     "LeadCreateSerializer",
     "LeadUpdateSerializer",

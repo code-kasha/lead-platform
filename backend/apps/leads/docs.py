@@ -1,18 +1,22 @@
 # ==============================================================================
-# Swagger Documentation
+# Swagger Documentation - Leads
 # ==============================================================================
 
-from apps.leads.serializers import LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
+from apps.common.docs import BAD_REQUEST, FORBIDDEN, NOT_FOUND, UNAUTHORIZED
+from apps.leads.serializers import AssignLeadSerializer, LeadCreateSerializer, LeadSerializer, LeadUpdateSerializer
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 
 lead_list = extend_schema(
     tags=["Leads"],
     summary="List Leads",
-    description=("Returns a paginated list of leads."),
+    description=(
+        "Returns a paginated list of leads visible to the authenticated user. "
+        "Supports search, filtering and ordering."
+    ),
     parameters=[
         OpenApiParameter(
             name="search",
-            description="Search by name, email or company.",
+            description="Search by first name, last name, email, phone or company.",
             required=False,
             type=str,
         ),
@@ -23,28 +27,36 @@ lead_list = extend_schema(
             type=str,
         ),
         OpenApiParameter(
-            name="ordering",
-            description="Sort results (created_at, first_name, company). Prefix with '-' for descending.",
+            name="source",
+            description="Filter by lead source.",
             required=False,
             type=str,
         ),
         OpenApiParameter(
-            name="page",
-            description="Page number.",
+            name="created_by",
+            description="Filter by creator.",
             required=False,
             type=int,
         ),
         OpenApiParameter(
-            name="page_size",
-            description="Number of results per page.",
+            name="assigned_to",
+            description="Filter by assigned member.",
             required=False,
             type=int,
+        ),
+        OpenApiParameter(
+            name="ordering",
+            description="Order by created_at, updated_at, first_name, last_name or status.",
+            required=False,
+            type=str,
         ),
     ],
     responses={
         200: LeadSerializer(many=True),
+        401: UNAUTHORIZED,
     },
 )
+
 
 lead_retrieve = extend_schema(
     tags=["Leads"],
@@ -52,39 +64,66 @@ lead_retrieve = extend_schema(
     description="Retrieve a single lead.",
     responses={
         200: LeadSerializer,
-        404: OpenApiResponse(description="Lead not found"),
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
     },
 )
+
 
 lead_create = extend_schema(
     tags=["Leads"],
     summary="Create Lead",
-    description="Create a new lead.",
+    description=(
+        "Create a new lead. " "The lead is automatically created with status NEW and is initially unassigned."
+    ),
     request=LeadCreateSerializer,
     responses={
         201: LeadSerializer,
-        400: OpenApiResponse(description="Validation error"),
+        400: BAD_REQUEST,
+        401: UNAUTHORIZED,
     },
 )
+
 
 lead_update = extend_schema(
     tags=["Leads"],
     summary="Update Lead",
-    description="Update an existing lead.",
+    description=("Update lead information. " "Status changes and assignment are handled through dedicated endpoints."),
     request=LeadUpdateSerializer,
     responses={
         200: LeadSerializer,
-        400: OpenApiResponse(description="Validation error"),
-        404: OpenApiResponse(description="Lead not found"),
+        400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
     },
 )
+
 
 lead_delete = extend_schema(
     tags=["Leads"],
     summary="Delete Lead",
     description="Delete a lead.",
     responses={
-        204: OpenApiResponse(description="Lead deleted"),
-        404: OpenApiResponse(description="Lead not found"),
+        204: OpenApiResponse(description="Lead deleted successfully."),
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+
+
+lead_assign = extend_schema(
+    tags=["Leads"],
+    summary="Assign Lead",
+    description="Assign a lead to an active member.",
+    request=AssignLeadSerializer,
+    responses={
+        200: LeadSerializer,
+        400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
     },
 )

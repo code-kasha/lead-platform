@@ -91,13 +91,13 @@
 
 # Phase 6 - Query Features
 
-- [ ] Pagination
-- [ ] Search
-- [ ] Filter by status
-- [ ] Filter by source
-- [ ] Filter by creator
-- [ ] Filter by assigned user
-- [ ] Ordering
+- [x] Pagination
+- [x] Search
+- [x] Filter by status
+- [x] Filter by source
+- [x] Filter by creator
+- [x] Filter by assigned user
+- [x] Ordering
 
 ---
 
@@ -105,7 +105,12 @@
 
 ## Assignment
 
-- [ ] Assign endpoint
+- [x] Assign endpoint
+- [x] Assign serializer
+- [x] Assignment service
+- [x] Assignment permission
+- [x] Assignment Swagger
+- [x] Assignment tests
 
 ## Status
 
@@ -126,17 +131,17 @@
 
 # Phase 8 - Permissions
 
-- [ ] Admin permissions
-- [ ] Member permissions
-- [ ] Object-level permissions
-- [ ] Test forbidden access
+- [x] Admin permissions
+- [x] Member permissions
+- [x] Object-level permissions
+- [x] Test forbidden access
 
 ---
 
 # Phase 9 - Business Logic
 
-- [ ] Automatic activity logging
-- [ ] Assignment validation
+- [x] Automatic activity logging
+- [x] Assignment validation
 - [ ] Status transition rules
 - [ ] Timestamp notes
 - [ ] Duplicate lead detection

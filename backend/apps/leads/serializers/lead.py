@@ -1,7 +1,7 @@
 # ==============================================================================
 # Lead Serializers
 # ==============================================================================
-
+from apps.accounts.models import User
 from apps.accounts.serializers import UserSummarySerializer
 from apps.leads.models import Lead
 from rest_framework import serializers
@@ -86,3 +86,12 @@ class LeadUpdateSerializer(serializers.ModelSerializer):
             "company",
             "source",
         )
+
+
+class AssignLeadSerializer(serializers.Serializer):
+    assigned_to = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(
+            is_active=True,
+        ),
+        help_text="ID of the user to assign the lead to.",
+    )
