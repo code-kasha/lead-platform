@@ -9,6 +9,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
+    """Configure user account management in the Django admin."""
+
     ordering = ("email",)
 
     list_display = (

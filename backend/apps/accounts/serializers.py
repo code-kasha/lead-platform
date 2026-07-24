@@ -25,6 +25,8 @@ from .models import User
     ]
 )
 class UserSerializer(serializers.ModelSerializer):
+    """Serialize read-only user account details."""
+
     id = serializers.IntegerField(
         read_only=True,
         help_text="Unique user identifier.",
@@ -65,9 +67,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
+    """Add user details to issued JWT tokens."""
 
     @classmethod
     def get_token(cls, user):
+        """Create a token containing the user's email and role."""
+
         token = super().get_token(user)
 
         token["email"] = user.email
@@ -77,17 +82,25 @@ class LoginSerializer(TokenObtainPairSerializer):
 
 
 class UserSummarySerializer(UserSerializer):
+    """Serialize the standard summary of a user account."""
+
     pass
 
 
 class LogoutSerializer(serializers.Serializer):
+    """Validate a refresh token for invalidation."""
+
     refresh = serializers.CharField(
         help_text="Refresh token to invalidate.",
     )
 
     def validate(self, attrs):
+        """Store the validated refresh token for invalidation."""
+
         self.token = attrs["refresh"]
         return attrs
 
     def save(self, **kwargs):
+        """Blacklist the validated refresh token."""
+
         RefreshToken(self.token).blacklist()

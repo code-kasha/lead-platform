@@ -8,9 +8,13 @@ from .choices import UserRole
 
 
 class UserManager(BaseUserManager):
+    """Create and manage users authenticated by email address."""
+
     use_in_migrations = True
 
     def create_user(self, email, password=None, **extra_fields):
+        """Create and save a standard user account."""
+
         if not email:
             raise ValueError("Email address is required.")
 
@@ -27,6 +31,8 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
+        """Create and save an administrator account."""
+
         extra_fields.setdefault("role", UserRole.ADMIN)
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)

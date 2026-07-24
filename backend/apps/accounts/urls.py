@@ -1,3 +1,7 @@
+# ==============================================================================
+# Authentication URL Routes
+# ==============================================================================
+
 from django.urls import path
 
 from .views import LoginView, LogoutView, MeView, RefreshView

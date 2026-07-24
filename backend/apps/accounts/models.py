@@ -11,9 +11,7 @@ from .managers import UserManager
 
 
 class User(Base, AbstractBaseUser, PermissionsMixin):
-    """
-    Custom user model using email as the unique identifier.
-    """
+    """Represent a user authenticated by a unique email address."""
 
     email = models.EmailField(
         unique=True,
@@ -59,19 +57,29 @@ class User(Base, AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_full_name(self):
+        """Return the user's full name for Django integrations."""
+
         return self.full_name
 
     def get_short_name(self):
+        """Return the user's first name for Django integrations."""
+
         return self.first_name
 
     @property
     def full_name(self):
+        """Return the user's combined first and last name."""
+
         return f"{self.first_name} {self.last_name}".strip()
 
     @property
     def is_admin(self):
+        """Return whether the user has the administrator role."""
+
         return self.role == UserRole.ADMIN
 
     @property
     def is_member(self):
+        """Return whether the user has the member role."""
+
         return self.role == UserRole.MEMBER
