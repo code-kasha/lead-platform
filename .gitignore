@@ -13,7 +13,6 @@ __pycache__/
 *.pyd
 *.pyo
 backend/apps/activities
-backend/apps/common
 backend/apps/leads
 
 # ==============================================================================
