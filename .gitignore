@@ -12,7 +12,9 @@ __pycache__/
 *.so
 *.pyd
 *.pyo
-backend/apps/
+backend/apps/activities
+backend/apps/common
+backend/apps/leads
 
 # ==============================================================================
 # Virtual Environment
