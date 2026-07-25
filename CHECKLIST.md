@@ -127,7 +127,7 @@
 - [x] Add note
 - [ ] Edit note
 - [ ] Delete note
-- [ ] List notes
+- [x] List notes
 
 ## Activity
 

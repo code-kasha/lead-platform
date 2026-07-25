@@ -122,3 +122,25 @@ def assign_lead(
     )
 
     return lead
+
+
+@transaction.atomic
+def update_lead_note(
+    *,
+    note: LeadNote,
+    content: str,
+) -> LeadNote:
+    """
+    Update the content of a lead note.
+    """
+
+    note.content = content
+
+    note.save(
+        update_fields=[
+            "content",
+            "updated_at",
+        ],
+    )
+
+    return note

@@ -9,6 +9,7 @@ from apps.leads.serializers import (
     LeadCreateSerializer,
     LeadNoteCreateSerializer,
     LeadNoteSerializer,
+    LeadNoteUpdateSerializer,
     LeadSerializer,
     LeadUpdateSerializer,
 )
@@ -183,6 +184,19 @@ lead_list_notes = extend_schema(
     description="Retrieve all notes for a lead.",
     responses={
         200: LeadNoteSerializer(many=True),
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+lead_update_note = extend_schema(
+    tags=["Leads"],
+    summary="Update Lead Note",
+    description="Update the content of a lead note.",
+    request=LeadNoteUpdateSerializer,
+    responses={
+        200: LeadNoteSerializer,
+        400: BAD_REQUEST,
         401: UNAUTHORIZED,
         403: FORBIDDEN,
         404: NOT_FOUND,

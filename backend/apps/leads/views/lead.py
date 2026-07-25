@@ -16,6 +16,7 @@ from apps.leads.docs import (
     lead_list_notes,
     lead_retrieve,
     lead_update,
+    lead_update_note,
 )
 from apps.leads.filters import LeadFilter
 from apps.leads.models import Lead
@@ -26,11 +27,13 @@ from apps.leads.serializers import (
     LeadCreateSerializer,
     LeadNoteCreateSerializer,
     LeadNoteSerializer,
+    LeadNoteUpdateSerializer,
     LeadSerializer,
     LeadUpdateSerializer,
 )
-from apps.leads.services import add_lead_note, assign_lead, change_lead_status
+from apps.leads.services import add_lead_note, assign_lead, change_lead_status, update_lead_note
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
 from rest_framework import status
@@ -51,6 +54,7 @@ from rest_framework.viewsets import ModelViewSet
     status=lead_change_status,
     add_note=lead_add_note,
     list_notes=lead_list_notes,
+    update_note=lead_update_note,
 )
 class LeadViewSet(ModelViewSet):
     """Provide lead CRUD operations, filtering, search, and ordering."""
@@ -241,5 +245,46 @@ class LeadViewSet(ModelViewSet):
 
         return Response(
             serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
+        methods=["patch"],
+        permission_classes=[CanChangeStatus],
+        url_path="notes/(?P<note_pk>[^/.]+)",
+    )
+    def update_note(self, request, pk=None, note_pk=None):
+        """
+        Update a note attached to a lead.
+        """
+
+        lead = self.get_object()
+
+        note = get_object_or_404(
+            lead.notes,
+            pk=note_pk,
+        )
+
+        serializer = LeadNoteUpdateSerializer(
+            note,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        note = update_lead_note(
+            note=note,
+            content=serializer.validated_data["content"],
+        )
+
+        return Response(
+            LeadNoteSerializer(
+                note,
+                context=self.get_serializer_context(),
+            ).data,
             status=status.HTTP_200_OK,
         )
