@@ -35,34 +35,48 @@ export default function LeadNotes({ leadId }: Props) {
 		queryFn: () => getLeadNotes(leadId),
 	})
 
-	const invalidate = () =>
+	const invalidate = () => {
 		queryClient.invalidateQueries({
 			queryKey: ["lead-notes", leadId],
 		})
 
+		queryClient.invalidateQueries({
+			queryKey: ["lead-activities", leadId],
+		})
+	}
+
 	const addMutation = useMutation({
-		mutationFn: () => addLeadNote(leadId, content),
+		mutationFn: () => addLeadNote(leadId, content.trim()),
 
 		onSuccess: () => {
 			toast.success("Note added.")
+
 			setContent("")
+
 			invalidate()
 		},
 
-		onError: () => toast.error("Unable to add note."),
+		onError: () => {
+			toast.error("Unable to add note.")
+		},
 	})
 
 	const updateMutation = useMutation({
-		mutationFn: () => updateLeadNote(editingId!, editContent),
+		mutationFn: () => updateLeadNote(editingId!, editContent.trim()),
 
 		onSuccess: () => {
 			toast.success("Note updated.")
+
 			setEditingId(null)
+
 			setEditContent("")
+
 			invalidate()
 		},
 
-		onError: () => toast.error("Unable to update note."),
+		onError: () => {
+			toast.error("Unable to update note.")
+		},
 	})
 
 	const deleteMutation = useMutation({
@@ -70,10 +84,13 @@ export default function LeadNotes({ leadId }: Props) {
 
 		onSuccess: () => {
 			toast.success("Note deleted.")
+
 			invalidate()
 		},
 
-		onError: () => toast.error("Unable to delete note."),
+		onError: () => {
+			toast.error("Unable to delete note.")
+		},
 	})
 
 	return (
@@ -88,7 +105,11 @@ export default function LeadNotes({ leadId }: Props) {
 				/>
 
 				<div className="mt-3">
-					<Button loading={addMutation.isPending} disabled={!content.trim()}>
+					<Button
+						onClick={() => addMutation.mutate()}
+						loading={addMutation.isPending}
+						disabled={!content.trim()}
+					>
 						Add Note
 					</Button>
 				</div>
@@ -125,6 +146,7 @@ export default function LeadNotes({ leadId }: Props) {
 									<Button
 										variant="success"
 										loading={updateMutation.isPending}
+										disabled={!editContent.trim()}
 										onClick={() => updateMutation.mutate()}
 									>
 										Save
@@ -132,7 +154,10 @@ export default function LeadNotes({ leadId }: Props) {
 
 									<Button
 										variant="secondary"
-										onClick={() => setEditingId(null)}
+										onClick={() => {
+											setEditingId(null)
+											setEditContent("")
+										}}
 									>
 										Cancel
 									</Button>
