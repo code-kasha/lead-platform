@@ -3,85 +3,110 @@ import { Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 
 import { getLeads } from "../../api/leads"
-import type { Lead } from "../../types"
+
+import Card from "../../components/ui/Card"
+import PageHeader from "../../components/ui/PageHeader"
+import StatusBadge from "../../components/ui/StatusBadge"
 
 export default function LeadListPage() {
-	const { data, isLoading } = useQuery({
+	const { data, isLoading, isError } = useQuery({
 		queryKey: ["leads"],
 		queryFn: getLeads,
 	})
 
 	if (isLoading) {
-		return <div className="py-20 text-center">Loading leads...</div>
+		return (
+			<div className="py-20 text-center text-gray-500">Loading leads...</div>
+		)
 	}
 
-	if (!data?.results.length) {
+	if (isError || !data) {
 		return (
-			<div className="rounded-lg border bg-white p-12 text-center">
-				<h2 className="text-xl font-semibold">No leads found</h2>
-
-				<p className="mt-2 text-gray-500">Create your first lead.</p>
+			<div className="py-20 text-center text-red-600">
+				Failed to load leads.
 			</div>
 		)
 	}
 
 	return (
-		<div>
-			<div className="mb-6 flex items-center justify-between">
-				<h1 className="text-3xl font-bold">Leads</h1>
+		<div className="space-y-6">
+			<PageHeader
+				title="Leads"
+				description="Manage your sales pipeline."
+				action={
+					<Link
+						to="/leads/new"
+						className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+					>
+						New Lead
+					</Link>
+				}
+			/>
 
-				<Link
-					to="/leads/new"
-					className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-				>
-					New Lead
-				</Link>
-			</div>
+			<Card>
+				<div className="overflow-x-auto">
+					<table className="min-w-full divide-y divide-gray-200">
+						<thead className="bg-gray-50">
+							<tr>
+								<th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+									Name
+								</th>
 
-			<div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-				<table className="w-full">
-					<thead className="bg-slate-100">
-						<tr>
-							<th className="px-4 py-3 text-left">Name</th>
+								<th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+									Company
+								</th>
 
-							<th className="px-4 py-3 text-left">Email</th>
+								<th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+									Email
+								</th>
 
-							<th className="px-4 py-3 text-left">Status</th>
+								<th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+									Status
+								</th>
 
-							<th className="px-4 py-3 text-left">Assigned To</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						{data.results.map((lead: Lead) => (
-							<tr key={lead.id} className="hover:bg-slate-50">
-								<td className="border-t px-4 py-3">
-									<Link
-										to={`/leads/${lead.id}`}
-										className="font-medium text-blue-600 hover:underline"
-									>
-										{lead.first_name} {lead.last_name}
-									</Link>
-								</td>
-
-								<td className="border-t px-4 py-3">{lead.email}</td>
-
-								<td className="border-t px-4 py-3">
-									<span className="rounded bg-blue-100 px-2 py-1 text-sm font-medium text-blue-700">
-										{lead.status}
-									</span>
-								</td>
-
-								<td className="border-t px-4 py-3">
-									{lead.assigned_to
-										? `${lead.assigned_to.first_name} ${lead.assigned_to.last_name}`
-										: "-"}
-								</td>
+								<th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+									Actions
+								</th>
 							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+						</thead>
+
+						<tbody className="divide-y divide-gray-200 bg-white">
+							{data.results.map((lead) => (
+								<tr key={lead.id} className="hover:bg-gray-50">
+									<td className="px-6 py-4 font-medium text-gray-900">
+										{lead.first_name} {lead.last_name}
+									</td>
+
+									<td className="px-6 py-4 text-gray-700">
+										{lead.company || "-"}
+									</td>
+
+									<td className="px-6 py-4 text-gray-700">{lead.email}</td>
+
+									<td className="px-6 py-4">
+										<StatusBadge status={lead.status} />
+									</td>
+
+									<td className="px-6 py-4 text-right">
+										<Link
+											to={`/leads/${lead.id}`}
+											className="font-medium text-blue-600 hover:text-blue-700"
+										>
+											View
+										</Link>
+									</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+
+					{data.results.length === 0 && (
+						<div className="py-12 text-center text-gray-500">
+							No leads found.
+						</div>
+					)}
+				</div>
+			</Card>
 		</div>
 	)
 }

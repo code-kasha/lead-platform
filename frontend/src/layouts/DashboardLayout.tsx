@@ -5,14 +5,16 @@ import Topbar from "../components/layout/Topbar"
 
 export default function DashboardLayout() {
 	return (
-		<div className="flex min-h-screen">
+		<div className="flex min-h-screen bg-gray-100">
 			<Sidebar />
 
-			<div className="flex flex-1 flex-col">
+			<div className="flex min-w-0 flex-1 flex-col">
 				<Topbar />
 
-				<main className="flex-1 bg-gray-50 p-6">
-					<Outlet />
+				<main className="flex-1 overflow-y-auto p-6">
+					<div className="mx-auto w-full max-w-7xl">
+						<Outlet />
+					</div>
 				</main>
 			</div>
 		</div>

@@ -1,77 +1,110 @@
-import { useParams } from "react-router-dom"
+console.log("PAGES LeadDetailPage")
+
+import { Link, useParams } from "react-router-dom"
 
 import { useQuery } from "@tanstack/react-query"
 
 import { getLead } from "../../api/leads"
 
+import LeadActivities from "../../components/leads/LeadActivities"
+import LeadAssignmentCard from "../../components/leads/LeadAssignmentCard"
+import LeadNotes from "../../components/leads/LeadNotes"
+import LeadStatusCard from "../../components/leads/LeadStatusCard"
+
 import Card from "../../components/ui/Card"
 import InfoRow from "../../components/ui/InfoRow"
 import PageHeader from "../../components/ui/PageHeader"
 import StatusBadge from "../../components/ui/StatusBadge"
-import LeadNotes from "../../components/leads/LeadNotes"
-import LeadActivities from "../../components/leads/LeadActivities"
 
 export default function LeadDetailPage() {
 	const { id } = useParams()
 
-	const { data, isLoading } = useQuery({
+	const {
+		data: lead,
+		isLoading,
+		isError,
+	} = useQuery({
 		queryKey: ["lead", id],
 		queryFn: () => getLead(Number(id)),
+		enabled: !!id,
 	})
 
 	if (isLoading) {
-		return <div className="py-20 text-center">Loading lead...</div>
+		return (
+			<div className="py-20 text-center text-gray-500">Loading lead...</div>
+		)
 	}
 
-	if (!data) {
-		return <div className="py-20 text-center">Lead not found.</div>
+	if (isError || !lead) {
+		return <div className="py-20 text-center text-red-600">Lead not found.</div>
 	}
 
 	return (
 		<div className="space-y-6">
 			<PageHeader
-				title={`${data.first_name} ${data.last_name}`}
+				title={`${lead.first_name} ${lead.last_name}`}
 				description="Lead information"
+				action={
+					<Link
+						to={`/leads/${lead.id}/edit`}
+						className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
+					>
+						Edit Lead
+					</Link>
+				}
 			/>
 
-			<Card>
-				<dl className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<InfoRow label="Email" value={data.email} />
+			<Card title="Lead Information">
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+					<InfoRow label="Email" value={lead.email} />
 
-					<InfoRow label="Phone" value={data.phone || "-"} />
+					<InfoRow label="Phone" value={lead.phone || "-"} />
 
-					<InfoRow label="Company" value={data.company || "-"} />
+					<InfoRow label="Company" value={lead.company || "-"} />
 
-					<InfoRow label="Source" value={data.source || "-"} />
+					<InfoRow label="Source" value={lead.source || "-"} />
 
 					<InfoRow
 						label="Status"
-						value={<StatusBadge status={data.status} />}
+						value={<StatusBadge status={lead.status} />}
 					/>
 
 					<InfoRow
 						label="Assigned To"
-						value={data.assigned_to?.full_name ?? "-"}
+						value={
+							lead.assigned_to
+								? `${lead.assigned_to.first_name} ${lead.assigned_to.last_name}`
+								: "-"
+						}
 					/>
 
 					<InfoRow
 						label="Created By"
-						value={data.created_by?.full_name ?? "-"}
+						value={`${lead.created_by.first_name} ${lead.created_by.last_name}`}
 					/>
 
 					<InfoRow
 						label="Created"
-						value={new Date(data.created_at).toLocaleString()}
+						value={new Date(lead.created_at).toLocaleString()}
 					/>
 
 					<InfoRow
-						label="Last Updated"
-						value={new Date(data.updated_at).toLocaleString()}
+						label="Updated"
+						value={new Date(lead.updated_at).toLocaleString()}
 					/>
-				</dl>
+				</div>
 			</Card>
-			<LeadNotes leadId={data.id} />
-			<LeadActivities leadId={data.id} />
+
+			<LeadStatusCard leadId={lead.id} currentStatus={lead.status} />
+
+			<LeadAssignmentCard
+				leadId={lead.id}
+				currentUserId={lead.assigned_to?.id ?? null}
+			/>
+
+			<LeadNotes leadId={lead.id} />
+
+			<LeadActivities leadId={lead.id} />
 		</div>
 	)
 }

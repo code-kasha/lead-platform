@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
@@ -16,9 +16,13 @@ type Props = {
 export default function LeadAssignmentCard({ leadId, currentUserId }: Props) {
 	const queryClient = useQueryClient()
 
-	const [userId, setUserId] = useState<number | "">(currentUserId ?? "")
+	const [userId, setUserId] = useState<number | "">("")
 
-	const { data: users } = useQuery({
+	useEffect(() => {
+		setUserId(currentUserId ?? "")
+	}, [currentUserId])
+
+	const { data: users, isLoading } = useQuery({
 		queryKey: ["users"],
 		queryFn: getUsers,
 	})
@@ -27,7 +31,7 @@ export default function LeadAssignmentCard({ leadId, currentUserId }: Props) {
 		mutationFn: (assignedTo: number) => assignLead(leadId, assignedTo),
 
 		onSuccess: () => {
-			toast.success("Lead assigned.")
+			toast.success("Lead assigned successfully.")
 
 			queryClient.invalidateQueries({
 				queryKey: ["lead", leadId],
@@ -35,6 +39,10 @@ export default function LeadAssignmentCard({ leadId, currentUserId }: Props) {
 
 			queryClient.invalidateQueries({
 				queryKey: ["lead-activities", leadId],
+			})
+
+			queryClient.invalidateQueries({
+				queryKey: ["leads"],
 			})
 		},
 
@@ -45,11 +53,14 @@ export default function LeadAssignmentCard({ leadId, currentUserId }: Props) {
 
 	return (
 		<Card title="Assignment">
-			<div className="flex gap-4">
+			<div className="flex flex-col gap-4 md:flex-row">
 				<select
-					className="flex-1 rounded border px-3 py-2"
+					className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
 					value={userId}
-					onChange={(e) => setUserId(Number(e.target.value))}
+					disabled={isLoading}
+					onChange={(e) =>
+						setUserId(e.target.value ? Number(e.target.value) : "")
+					}
 				>
 					<option value="">Select member</option>
 
@@ -61,11 +72,12 @@ export default function LeadAssignmentCard({ leadId, currentUserId }: Props) {
 				</select>
 
 				<button
-					className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+					type="button"
+					className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 					disabled={userId === "" || mutation.isPending}
 					onClick={() => mutation.mutate(Number(userId))}
 				>
-					Assign
+					{mutation.isPending ? "Assigning..." : "Assign"}
 				</button>
 			</div>
 		</Card>
