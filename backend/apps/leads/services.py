@@ -144,3 +144,15 @@ def update_lead_note(
     )
 
     return note
+
+
+@transaction.atomic
+def delete_lead_note(
+    *,
+    note: LeadNote,
+) -> None:
+    """
+    Delete a lead note.
+    """
+
+    note.delete()

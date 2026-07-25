@@ -16,7 +16,6 @@ from apps.leads.docs import (
     lead_list_notes,
     lead_retrieve,
     lead_update,
-    lead_update_note,
 )
 from apps.leads.filters import LeadFilter
 from apps.leads.models import Lead
@@ -27,13 +26,11 @@ from apps.leads.serializers import (
     LeadCreateSerializer,
     LeadNoteCreateSerializer,
     LeadNoteSerializer,
-    LeadNoteUpdateSerializer,
     LeadSerializer,
     LeadUpdateSerializer,
 )
-from apps.leads.services import add_lead_note, assign_lead, change_lead_status, update_lead_note
+from apps.leads.services import add_lead_note, assign_lead, change_lead_status
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
 from rest_framework import status
@@ -54,7 +51,6 @@ from rest_framework.viewsets import ModelViewSet
     status=lead_change_status,
     add_note=lead_add_note,
     list_notes=lead_list_notes,
-    update_note=lead_update_note,
 )
 class LeadViewSet(ModelViewSet):
     """Provide lead CRUD operations, filtering, search, and ordering."""
@@ -62,7 +58,9 @@ class LeadViewSet(ModelViewSet):
     lookup_field = "pk"
     lookup_url_kwarg = "pk"
 
-    permission_classes = [LeadPermission]
+    permission_classes = [
+        LeadPermission,
+    ]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -88,7 +86,9 @@ class LeadViewSet(ModelViewSet):
         "status",
     ]
 
-    ordering = ["-created_at"]
+    ordering = [
+        "-created_at",
+    ]
 
     serializer_classes = {
         "create": LeadCreateSerializer,
@@ -106,10 +106,17 @@ class LeadViewSet(ModelViewSet):
 
         user = self.request.user
 
-        if not getattr(user, "is_authenticated", False):
+        if not getattr(
+            user,
+            "is_authenticated",
+            False,
+        ):
             return queryset.none()
 
-        user = cast(User, user)
+        user = cast(
+            User,
+            user,
+        )
 
         if user.role == UserRole.ADMIN:
             return queryset
@@ -124,7 +131,10 @@ class LeadViewSet(ModelViewSet):
             LeadSerializer,
         )
 
-    def perform_create(self, serializer):
+    def perform_create(
+        self,
+        serializer,
+    ):
         """Create a lead owned by the authenticated user."""
 
         serializer.save(
@@ -134,9 +144,15 @@ class LeadViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[CanAssignLead],
+        permission_classes=[
+            CanAssignLead,
+        ],
     )
-    def assign(self, request, pk=None):
+    def assign(
+        self,
+        request,
+        pk=None,
+    ):
         """Assign the selected lead to an active member."""
 
         lead = self.get_object()
@@ -144,7 +160,10 @@ class LeadViewSet(ModelViewSet):
         serializer = AssignLeadSerializer(
             data=request.data,
         )
-        serializer.is_valid(raise_exception=True)
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
 
         assign_lead(
             lead=lead,
@@ -163,9 +182,15 @@ class LeadViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[CanChangeStatus],
+        permission_classes=[
+            CanChangeStatus,
+        ],
     )
-    def status(self, request, pk=None):
+    def status(
+        self,
+        request,
+        pk=None,
+    ):
         """Change the selected lead's status."""
 
         lead = self.get_object()
@@ -173,7 +198,10 @@ class LeadViewSet(ModelViewSet):
         serializer = ChangeLeadStatusSerializer(
             data=request.data,
         )
-        serializer.is_valid(raise_exception=True)
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
 
         change_lead_status(
             lead=lead,
@@ -192,13 +220,17 @@ class LeadViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=["post"],
-        permission_classes=[CanChangeStatus],
+        permission_classes=[
+            CanChangeStatus,
+        ],
         url_path="notes",
     )
-    def add_note(self, request, pk=None):
-        """
-        Add a note to a lead.
-        """
+    def add_note(
+        self,
+        request,
+        pk=None,
+    ):
+        """Add a note to a lead."""
 
         lead = self.get_object()
 
@@ -227,13 +259,17 @@ class LeadViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=["get"],
-        permission_classes=[CanChangeStatus],
+        permission_classes=[
+            CanChangeStatus,
+        ],
         url_path="notes/list",
     )
-    def list_notes(self, request, pk=None):
-        """
-        List all notes for a lead.
-        """
+    def list_notes(
+        self,
+        request,
+        pk=None,
+    ):
+        """List all notes for a lead."""
 
         lead = self.get_object()
 
@@ -245,46 +281,5 @@ class LeadViewSet(ModelViewSet):
 
         return Response(
             serializer.data,
-            status=status.HTTP_200_OK,
-        )
-
-    @action(
-        detail=True,
-        methods=["patch"],
-        permission_classes=[CanChangeStatus],
-        url_path="notes/(?P<note_pk>[^/.]+)",
-    )
-    def update_note(self, request, pk=None, note_pk=None):
-        """
-        Update a note attached to a lead.
-        """
-
-        lead = self.get_object()
-
-        note = get_object_or_404(
-            lead.notes,
-            pk=note_pk,
-        )
-
-        serializer = LeadNoteUpdateSerializer(
-            note,
-            data=request.data,
-            partial=True,
-        )
-
-        serializer.is_valid(
-            raise_exception=True,
-        )
-
-        note = update_lead_note(
-            note=note,
-            content=serializer.validated_data["content"],
-        )
-
-        return Response(
-            LeadNoteSerializer(
-                note,
-                context=self.get_serializer_context(),
-            ).data,
             status=status.HTTP_200_OK,
         )

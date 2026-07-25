@@ -187,11 +187,13 @@ lead_list_notes = extend_schema(
 
 lead_update_note = extend_schema(
     tags=["Leads"],
+    operation_id="updateLeadNote",
     summary="Update Lead Note",
     description="Update the content of a lead note.",
     parameters=[
+        LEAD_PK_PARAMETER,
         OpenApiParameter(
-            name="pk",
+            name="note_pk",
             type=OpenApiTypes.INT,
             location=OpenApiParameter.PATH,
             description="Unique note identifier.",
@@ -201,6 +203,29 @@ lead_update_note = extend_schema(
     responses={
         200: LeadNoteSerializer,
         400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+
+lead_delete_note = extend_schema(
+    tags=["Leads"],
+    operation_id="deleteLeadNote",
+    summary="Delete Lead Note",
+    description="Delete a lead note.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Unique note identifier.",
+        ),
+    ],
+    responses={
+        204: OpenApiResponse(
+            description="Lead note deleted successfully.",
+        ),
         401: UNAUTHORIZED,
         403: FORBIDDEN,
         404: NOT_FOUND,
