@@ -2,14 +2,13 @@
 # Swagger Documentation - Authentication
 # ==============================================================================
 
-from apps.accounts.serializers import UserSerializer
 from apps.common.docs import BAD_REQUEST, UNAUTHORIZED
 from apps.common.examples import LOGIN_SUCCESS, TOKEN_REFRESH
 from apps.common.examples import UNAUTHORIZED as UNAUTHORIZED_EXAMPLE
 from apps.common.serializers import AccessTokenSerializer, LoginRequestSerializer, TokenSerializer
 from drf_spectacular.utils import extend_schema
 
-from .serializers import LogoutSerializer
+from .serializers import LogoutSerializer, UserSerializer, UserSummarySerializer
 
 login_schema = extend_schema(
     tags=["Authentication"],
@@ -55,6 +54,7 @@ me_schema = extend_schema(
     },
 )
 
+
 logout_schema = extend_schema(
     tags=["Authentication"],
     summary="Logout",
@@ -63,6 +63,17 @@ logout_schema = extend_schema(
     responses={
         205: None,
         400: BAD_REQUEST,
+        401: UNAUTHORIZED,
+    },
+)
+
+
+user_list_schema = extend_schema(
+    tags=["Users"],
+    summary="List Users",
+    description="Return all active members available for lead assignment.",
+    responses={
+        200: UserSummarySerializer(many=True),
         401: UNAUTHORIZED,
     },
 )

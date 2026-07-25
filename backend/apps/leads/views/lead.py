@@ -134,6 +134,33 @@ class LeadViewSet(ModelViewSet):
             LeadSerializer,
         )
 
+    def create(self, request, *args, **kwargs):
+        """
+        Create a lead and return the full lead representation.
+        """
+
+        serializer = self.get_serializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        lead = serializer.save(
+            created_by=request.user,
+        )
+
+        output = LeadSerializer(
+            lead,
+            context=self.get_serializer_context(),
+        )
+
+        return Response(
+            output.data,
+            status=status.HTTP_201_CREATED,
+        )
+
     def perform_create(
         self,
         serializer,

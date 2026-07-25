@@ -23,7 +23,13 @@ INSTALLED_APPS = [
     *base.INSTALLED_APPS,
     "debug_toolbar",
 ]
+
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     *base.MIDDLEWARE,
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]

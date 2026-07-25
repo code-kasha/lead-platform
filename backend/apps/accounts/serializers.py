@@ -81,10 +81,34 @@ class LoginSerializer(TokenObtainPairSerializer):
         return token
 
 
-class UserSummarySerializer(UserSerializer):
-    """Serialize the standard summary of a user account."""
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "User Summary",
+            value={
+                "id": 1,
+                "full_name": "Akash Damle",
+            },
+        )
+    ]
+)
+class UserSummarySerializer(serializers.ModelSerializer):
+    """Serialize a lightweight representation of a user."""
 
-    pass
+    full_name = serializers.CharField(
+        read_only=True,
+        help_text="User's full name.",
+    )
+
+    class Meta:
+        model = User
+
+        fields = (
+            "id",
+            "full_name",
+        )
+
+        read_only_fields = fields
 
 
 class LogoutSerializer(serializers.Serializer):

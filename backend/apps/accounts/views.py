@@ -6,8 +6,10 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .docs import login_schema, logout_schema, me_schema, refresh_schema
-from .serializers import LoginSerializer, LogoutSerializer, UserSerializer
+from .choices import UserRole
+from .docs import login_schema, logout_schema, me_schema, refresh_schema, user_list_schema
+from .models import User
+from .serializers import LoginSerializer, LogoutSerializer, UserSerializer, UserSummarySerializer
 
 
 @login_schema
@@ -47,8 +49,35 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request):
         """Invalidate the submitted refresh token."""
 
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        serializer = self.get_serializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
         serializer.save()
 
-        return Response(status=status.HTTP_205_RESET_CONTENT)
+        return Response(
+            status=status.HTTP_205_RESET_CONTENT,
+        )
+
+
+@user_list_schema
+class UserListView(generics.ListAPIView):
+    """Return members available for lead assignment."""
+
+    serializer_class = UserSummarySerializer
+
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    queryset = User.objects.filter(
+        role=UserRole.MEMBER,
+        is_active=True,
+    ).order_by(
+        "first_name",
+        "last_name",
+    )
