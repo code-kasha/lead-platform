@@ -10,5 +10,5 @@ export type UserListResponse =
 export async function getUsers(): Promise<UserSummary[]> {
 	const response = await api.get("/auth/users/")
 
-	return response.data
+	return response.data.results ?? response.data
 }
