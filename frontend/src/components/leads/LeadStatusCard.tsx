@@ -7,6 +7,8 @@ import { changeLeadStatus, type Lead } from "../../api/leads"
 
 import Card from "../ui/Card"
 
+import type { AxiosError } from "axios"
+
 type Status = Lead["status"]
 
 type Props = {
@@ -51,9 +53,8 @@ export default function LeadStatusCard({ leadId, currentStatus }: Props) {
 			})
 		},
 
-		onError: (error: any) => {
-			const message =
-				error?.response?.data?.status ?? "Unable to update status."
+		onError: (error: AxiosError<{ status?: string }>) => {
+			const message = error.response?.data?.status ?? "Unable to update status."
 
 			toast.error(message)
 		},

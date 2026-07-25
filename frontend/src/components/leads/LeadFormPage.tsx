@@ -1,4 +1,10 @@
-import { useEffect, useState } from "react"
+// ==============================================================================
+// Lead Form Page
+// ==============================================================================
+
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+
 import { useNavigate, useParams } from "react-router-dom"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
@@ -12,8 +18,10 @@ import {
 	type LeadCreateRequest,
 } from "../../api/leads"
 
+import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import PageHeader from "../../components/ui/PageHeader"
+import Spinner from "../../components/ui/Spinner"
 import TextField from "../../components/ui/TextField"
 
 export default function LeadFormPage() {
@@ -21,7 +29,7 @@ export default function LeadFormPage() {
 
 	const navigate = useNavigate()
 
-	const isEdit = id !== undefined
+	const isEdit = Boolean(id)
 
 	const { data: lead, isLoading } = useQuery({
 		queryKey: ["lead", id],
@@ -29,34 +37,45 @@ export default function LeadFormPage() {
 		enabled: isEdit,
 	})
 
-	const [firstName, setFirstName] = useState("")
-	const [lastName, setLastName] = useState("")
-	const [email, setEmail] = useState("")
-	const [phone, setPhone] = useState("")
-	const [company, setCompany] = useState("")
-	const [source, setSource] = useState("")
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors },
+	} = useForm<LeadCreateRequest>({
+		defaultValues: {
+			first_name: "",
+			last_name: "",
+			email: "",
+			phone: "",
+			company: "",
+			source: "",
+		},
+	})
 
 	useEffect(() => {
-		if (!lead) {
-			return
-		}
+		if (!lead) return
 
-		setFirstName(lead.first_name)
-		setLastName(lead.last_name)
-		setEmail(lead.email)
-		setPhone(lead.phone ?? "")
-		setCompany(lead.company ?? "")
-		setSource(lead.source ?? "")
-	}, [lead])
+		reset({
+			first_name: lead.first_name,
+			last_name: lead.last_name,
+			email: lead.email,
+			phone: lead.phone ?? "",
+			company: lead.company ?? "",
+			source: lead.source ?? "",
+		})
+	}, [lead, reset])
 
 	const mutation = useMutation<Lead, Error, LeadCreateRequest>({
-		mutationFn: (data) =>
-			isEdit ? updateLead(Number(id), data) : createLead(data),
+		mutationFn: (payload) =>
+			isEdit ? updateLead(Number(id), payload) : createLead(payload),
 
-		onSuccess: (lead) => {
-			toast.success(isEdit ? "Lead updated." : "Lead created.")
+		onSuccess: (savedLead) => {
+			toast.success(
+				isEdit ? "Lead updated successfully." : "Lead created successfully.",
+			)
 
-			navigate(`/leads/${lead.id}`)
+			navigate(`/leads/${savedLead.id}`)
 		},
 
 		onError: () => {
@@ -64,88 +83,94 @@ export default function LeadFormPage() {
 		},
 	})
 
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault()
-
+	const onSubmit = (data: LeadCreateRequest) => {
 		mutation.mutate({
-			first_name: firstName,
-			last_name: lastName,
-			email,
-			phone,
-			company,
-			source,
+			...data,
+			first_name: data.first_name.trim(),
+			last_name: data.last_name.trim(),
+			email: data.email.trim(),
+			phone: data.phone?.trim() ?? "",
+			company: data.company?.trim() ?? "",
+			source: data.source?.trim() ?? "",
 		})
 	}
 
 	if (isLoading) {
-		return <div className="py-20 text-center">Loading lead...</div>
+		return <Spinner label="Loading lead..." />
 	}
 
 	return (
 		<div className="space-y-6">
 			<PageHeader
 				title={isEdit ? "Edit Lead" : "Create Lead"}
-				description={isEdit ? "Update lead information." : "Create a new lead."}
+				description={
+					isEdit ? "Update lead information." : "Add a new lead to your CRM."
+				}
 			/>
 
-			<Card>
-				<form onSubmit={handleSubmit} className="space-y-5">
+			<Card title="Lead Information" subtitle="Complete the details below.">
+				<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 					<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 						<TextField
 							label="First Name"
-							value={firstName}
-							onChange={(e) => setFirstName(e.target.value)}
 							required
+							error={errors.first_name?.message}
+							{...register("first_name", {
+								required: "First name is required",
+							})}
 						/>
-
 						<TextField
 							label="Last Name"
-							value={lastName}
-							onChange={(e) => setLastName(e.target.value)}
 							required
+							error={errors.last_name?.message}
+							{...register("last_name", {
+								required: "Last name is required",
+							})}
 						/>
 					</div>
 
 					<TextField
 						label="Email"
 						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
 						required
+						error={errors.email?.message}
+						{...register("email", {
+							required: "Email is required",
+						})}
 					/>
 
-					<TextField
-						label="Phone"
-						value={phone}
-						onChange={(e) => setPhone(e.target.value)}
-					/>
+					<div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+						<TextField
+							label="Phone"
+							error={errors.phone?.message}
+							{...register("phone")}
+						/>
 
-					<TextField
-						label="Company"
-						value={company}
-						onChange={(e) => setCompany(e.target.value)}
-					/>
+						<TextField
+							label="Company"
+							error={errors.company?.message}
+							{...register("company")}
+						/>
+					</div>
 
 					<TextField
 						label="Source"
-						value={source}
-						onChange={(e) => setSource(e.target.value)}
+						error={errors.source?.message}
+						{...register("source")}
 					/>
 
-					<div className="flex justify-end">
-						<button
-							type="submit"
-							disabled={mutation.isPending}
-							className="rounded-lg bg-blue-600 px-6 py-2 text-white transition hover:bg-blue-700 disabled:opacity-50"
+					<div className="flex justify-end gap-3 border-t border-gray-200 pt-6">
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={() => navigate(-1)}
 						>
-							{mutation.isPending
-								? isEdit
-									? "Saving..."
-									: "Creating..."
-								: isEdit
-									? "Save Changes"
-									: "Create Lead"}
-						</button>
+							Cancel
+						</Button>
+
+						<Button type="submit" loading={mutation.isPending}>
+							{isEdit ? "Save Changes" : "Create Lead"}
+						</Button>
 					</div>
 				</form>
 			</Card>

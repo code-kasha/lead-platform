@@ -1,3 +1,7 @@
+// ==============================================================================
+// Lead Notes
+// ==============================================================================
+
 import { useState } from "react"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -10,7 +14,10 @@ import {
 	updateLeadNote,
 } from "../../api/leads"
 
+import Button from "../ui/Button"
 import Card from "../ui/Card"
+import EmptyState from "../ui/EmptyState"
+import Spinner from "../ui/Spinner"
 
 type Props = {
 	leadId: number
@@ -28,22 +35,21 @@ export default function LeadNotes({ leadId }: Props) {
 		queryFn: () => getLeadNotes(leadId),
 	})
 
+	const invalidate = () =>
+		queryClient.invalidateQueries({
+			queryKey: ["lead-notes", leadId],
+		})
+
 	const addMutation = useMutation({
 		mutationFn: () => addLeadNote(leadId, content),
 
 		onSuccess: () => {
 			toast.success("Note added.")
-
 			setContent("")
-
-			queryClient.invalidateQueries({
-				queryKey: ["lead-notes", leadId],
-			})
+			invalidate()
 		},
 
-		onError: () => {
-			toast.error("Unable to add note.")
-		},
+		onError: () => toast.error("Unable to add note."),
 	})
 
 	const updateMutation = useMutation({
@@ -51,18 +57,12 @@ export default function LeadNotes({ leadId }: Props) {
 
 		onSuccess: () => {
 			toast.success("Note updated.")
-
 			setEditingId(null)
 			setEditContent("")
-
-			queryClient.invalidateQueries({
-				queryKey: ["lead-notes", leadId],
-			})
+			invalidate()
 		},
 
-		onError: () => {
-			toast.error("Unable to update note.")
-		},
+		onError: () => toast.error("Unable to update note."),
 	})
 
 	const deleteMutation = useMutation({
@@ -70,15 +70,10 @@ export default function LeadNotes({ leadId }: Props) {
 
 		onSuccess: () => {
 			toast.success("Note deleted.")
-
-			queryClient.invalidateQueries({
-				queryKey: ["lead-notes", leadId],
-			})
+			invalidate()
 		},
 
-		onError: () => {
-			toast.error("Unable to delete note.")
-		},
+		onError: () => toast.error("Unable to delete note."),
 	})
 
 	return (
@@ -89,77 +84,82 @@ export default function LeadNotes({ leadId }: Props) {
 					value={content}
 					onChange={(e) => setContent(e.target.value)}
 					placeholder="Write a note..."
-					className="w-full rounded border p-3"
+					className="w-full rounded-lg border border-gray-300 p-3 transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
 				/>
 
-				<button
-					className="mt-3 rounded bg-blue-600 px-4 py-2 text-white"
-					onClick={() => addMutation.mutate()}
-					disabled={addMutation.isPending || !content.trim()}
-				>
-					Add Note
-				</button>
+				<div className="mt-3">
+					<Button loading={addMutation.isPending} disabled={!content.trim()}>
+						Add Note
+					</Button>
+				</div>
 			</div>
 
-			{isLoading && <p>Loading...</p>}
+			{isLoading && <Spinner label="Loading notes..." />}
 
 			{!isLoading && notes?.length === 0 && (
-				<p className="text-gray-500">No notes yet.</p>
+				<EmptyState
+					title="No Notes"
+					description="Add your first note for this lead."
+				/>
 			)}
 
 			<div className="space-y-4">
 				{notes?.map((note) => (
-					<div key={note.id} className="rounded border p-4">
+					<div
+						key={note.id}
+						className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+					>
 						{editingId === note.id ? (
 							<textarea
-								className="w-full rounded border p-2"
 								value={editContent}
 								onChange={(e) => setEditContent(e.target.value)}
+								className="w-full rounded-lg border border-gray-300 p-3"
 							/>
 						) : (
-							<p>{note.content}</p>
+							<p className="leading-7 text-gray-800">{note.content}</p>
 						)}
 
-						<div className="mt-4 flex gap-2">
+						<div className="mt-4 flex flex-wrap gap-2">
 							{editingId === note.id ? (
 								<>
-									<button
-										className="rounded bg-green-600 px-3 py-1 text-white"
+									<Button
+										variant="success"
+										loading={updateMutation.isPending}
 										onClick={() => updateMutation.mutate()}
 									>
 										Save
-									</button>
+									</Button>
 
-									<button
-										className="rounded bg-gray-500 px-3 py-1 text-white"
+									<Button
+										variant="secondary"
 										onClick={() => setEditingId(null)}
 									>
 										Cancel
-									</button>
+									</Button>
 								</>
 							) : (
 								<>
-									<button
-										className="rounded bg-blue-600 px-3 py-1 text-white"
+									<Button
 										onClick={() => {
 											setEditingId(note.id)
 											setEditContent(note.content)
 										}}
 									>
 										Edit
-									</button>
+									</Button>
 
-									<button
-										className="rounded bg-red-600 px-3 py-1 text-white"
+									<Button
+										variant="danger"
+										loading={deleteMutation.isPending}
 										onClick={() => deleteMutation.mutate(note.id)}
 									>
 										Delete
-									</button>
+									</Button>
 								</>
 							)}
 						</div>
 
-						<div className="mt-3 flex justify-between text-sm text-gray-500">
+						<div className="mt-5 flex items-center justify-between border-t pt-3 text-sm text-gray-500">
 							<span>{note.author.full_name}</span>
 
 							<span>{new Date(note.created_at).toLocaleString()}</span>

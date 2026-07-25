@@ -35,10 +35,12 @@ from apps.leads.services import add_lead_note, assign_lead, change_lead_status
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -337,4 +339,43 @@ class LeadViewSet(ModelViewSet):
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,
+        )
+
+
+@extend_schema(
+    tags=["Public"],
+    summary="Submit a public lead",
+    description="Create a new lead without authentication.",
+    request=LeadCreateSerializer,
+    responses={
+        201: LeadSerializer,
+    },
+)
+class PublicLeadCreateView(CreateAPIView):
+    """Allow unauthenticated visitors to submit a new lead."""
+
+    serializer_class = LeadCreateSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        serializer = self.get_serializer(
+            data=request.data,
+        )
+
+        serializer.is_valid(
+            raise_exception=True,
+        )
+
+        lead = serializer.save(
+            created_by=None,
+        )
+
+        output = LeadSerializer(
+            lead,
+            context=self.get_serializer_context(),
+        )
+
+        return Response(
+            output.data,
+            status=status.HTTP_201_CREATED,
         )

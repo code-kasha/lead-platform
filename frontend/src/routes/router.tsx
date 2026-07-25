@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom"
 
 import DashboardLayout from "../layouts/DashboardLayout"
 
@@ -7,11 +7,13 @@ import DashboardPage from "../pages/dashboard/DashboardPage"
 import LeadDetailPage from "../pages/leads/LeadDetailPage"
 import LeadFormPage from "../pages/leads/LeadFormPage"
 import LeadListPage from "../pages/leads/LeadListPage"
+import ProfilePage from "../pages/ProfilePage"
+import PublicLeadPage from "../pages/PublicLeadPage"
 
 export const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <Navigate to="/dashboard" replace />,
+		element: <PublicLeadPage />,
 	},
 	{
 		path: "/login",
@@ -39,6 +41,10 @@ export const router = createBrowserRouter([
 			{
 				path: "/leads/:id/edit",
 				element: <LeadFormPage />,
+			},
+			{
+				path: "profile",
+				element: <ProfilePage />,
 			},
 		],
 	},

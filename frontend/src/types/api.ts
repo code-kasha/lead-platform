@@ -84,6 +84,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/users/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description Return all active members available for lead assignment.
+         */
+        get: operations["auth_users_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/leads/": {
         parameters: {
             query?: never;
@@ -92,13 +112,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List Leads
+         * List visible leads
          * @description Returns a paginated list of leads visible to the authenticated user. Supports search, filtering and ordering.
          */
         get: operations["leads_list"];
         put?: never;
         /**
-         * Create Lead
+         * Create a lead
          * @description Create a new lead. The lead is automatically created with status NEW and is initially unassigned.
          */
         post: operations["leads_create"];
@@ -116,25 +136,25 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Retrieve Lead
-         * @description Retrieve a single lead.
+         * Retrieve a lead
+         * @description Retrieve a single lead that is visible to the authenticated user.
          */
         get: operations["leads_retrieve"];
         /**
-         * Update Lead
+         * Update a lead
          * @description Update lead information. Status changes and assignment are handled through dedicated endpoints.
          */
         put: operations["leads_update"];
         post?: never;
         /**
-         * Delete Lead
-         * @description Delete a lead.
+         * Delete a lead
+         * @description Permanently delete a lead visible to the authenticated user.
          */
         delete: operations["leads_destroy"];
         options?: never;
         head?: never;
         /**
-         * Update Lead
+         * Update a lead
          * @description Update lead information. Status changes and assignment are handled through dedicated endpoints.
          */
         patch: operations["leads_partial_update"];
@@ -150,8 +170,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Add Lead Note
-         * @description Create a note for a lead.
+         * Add a lead note
+         * @description Create a note for a lead and record the related activity.
          */
         post: operations["leads_notes_create"];
         delete?: never;
@@ -170,8 +190,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Assign Lead
-         * @description Assign a lead to an active member.
+         * Assign a lead
+         * @description Assign a lead to an active member. Administrator access is required.
          */
         post: operations["leads_assign_create"];
         delete?: never;
@@ -188,8 +208,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List Lead Activities
-         * @description Retrieve all activities recorded for a lead.
+         * List lead activities
+         * @description Retrieve activities recorded for a lead visible to the authenticated user.
          */
         get: operations["leads_activities_list"];
         put?: never;
@@ -208,8 +228,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List Lead Notes
-         * @description Retrieve all notes for a lead.
+         * List lead notes
+         * @description Retrieve all notes for a lead visible to the authenticated user.
          */
         get: operations["leads_notes_list_list"];
         put?: never;
@@ -230,8 +250,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Change Lead Status
-         * @description Change the status of a lead.
+         * Change a lead's status
+         * @description Change a lead's status when the requested transition is allowed.
          */
         post: operations["leads_status_create"];
         delete?: never;
@@ -248,18 +268,18 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** @description Update and delete lead notes. */
+        /** @description Provide update and delete operations for lead notes. */
         put: operations["leads_notes_update"];
         post?: never;
         /**
-         * Delete Lead Note
-         * @description Delete a lead note.
+         * Delete a lead note
+         * @description Permanently delete a lead note the authenticated user may manage.
          */
         delete: operations["deleteLeadNote"];
         options?: never;
         head?: never;
         /**
-         * Update Lead Note
+         * Update a lead note
          * @description Update the content of a lead note.
          */
         patch: operations["updateLeadNote"];
@@ -441,6 +461,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["LeadNote"][];
         };
+        PaginatedUserSummaryList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["UserSummary"][];
+        };
         /** @description Serializer used when updating a lead note. */
         PatchedLeadNoteUpdateRequest: {
             content?: string;
@@ -491,21 +526,11 @@ export interface components {
             /** @description Assigned user role. */
             readonly role: string;
         };
-        /** @description Serialize the standard summary of a user account. */
+        /** @description Serialize a lightweight representation of a user. */
         UserSummary: {
-            /** @description Unique user identifier. */
             readonly id: number;
-            /**
-             * Format: email
-             * @description Registered email address.
-             */
-            readonly email: string;
-            /** @description User's first name. */
-            readonly first_name: string;
-            /** @description User's last name. */
-            readonly last_name: string;
-            /** @description Assigned user role. */
-            readonly role: string;
+            /** @description User's full name. */
+            readonly full_name: string;
         };
     };
     responses: never;
@@ -650,6 +675,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Authentication credentials are invalid or missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    auth_users_list: {
+        parameters: {
+            query?: {
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description A search term. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedUserSummaryList"];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */

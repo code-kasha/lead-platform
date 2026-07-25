@@ -1,4 +1,6 @@
-console.log("PAGES LeadDetailPage")
+// ==============================================================================
+// Lead Detail Page
+// ==============================================================================
 
 import { Link, useParams } from "react-router-dom"
 
@@ -11,9 +13,11 @@ import LeadAssignmentCard from "../../components/leads/LeadAssignmentCard"
 import LeadNotes from "../../components/leads/LeadNotes"
 import LeadStatusCard from "../../components/leads/LeadStatusCard"
 
+import Button from "../../components/ui/Button"
 import Card from "../../components/ui/Card"
 import InfoRow from "../../components/ui/InfoRow"
 import PageHeader from "../../components/ui/PageHeader"
+import Spinner from "../../components/ui/Spinner"
 import StatusBadge from "../../components/ui/StatusBadge"
 
 export default function LeadDetailPage() {
@@ -30,9 +34,7 @@ export default function LeadDetailPage() {
 	})
 
 	if (isLoading) {
-		return (
-			<div className="py-20 text-center text-gray-500">Loading lead...</div>
-		)
+		return <Spinner label="Loading lead..." />
 	}
 
 	if (isError || !lead) {
@@ -45,11 +47,8 @@ export default function LeadDetailPage() {
 				title={`${lead.first_name} ${lead.last_name}`}
 				description="Lead information"
 				action={
-					<Link
-						to={`/leads/${lead.id}/edit`}
-						className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-					>
-						Edit Lead
+					<Link to={`/leads/${lead.id}/edit`}>
+						<Button>Edit Lead</Button>
 					</Link>
 				}
 			/>
@@ -71,16 +70,12 @@ export default function LeadDetailPage() {
 
 					<InfoRow
 						label="Assigned To"
-						value={
-							lead.assigned_to
-								? `${lead.assigned_to.first_name} ${lead.assigned_to.last_name}`
-								: "-"
-						}
+						value={lead.assigned_to?.full_name ?? "-"}
 					/>
 
 					<InfoRow
 						label="Created By"
-						value={`${lead.created_by.first_name} ${lead.created_by.last_name}`}
+						value={lead.created_by?.full_name ?? "-"}
 					/>
 
 					<InfoRow

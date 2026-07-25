@@ -103,3 +103,9 @@ export async function changeLeadStatus(
 
 	return response.data
 }
+
+export async function submitLead(data: LeadCreateRequest): Promise<Lead> {
+	const response = await api.post("/leads/public/", data)
+
+	return response.data
+}
