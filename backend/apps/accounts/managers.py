@@ -2,9 +2,14 @@
 # Manager for the User model
 # ==============================================================================
 
+from typing import TYPE_CHECKING, Any
+
 from django.contrib.auth.base_user import BaseUserManager
 
 from .choices import UserRole
+
+if TYPE_CHECKING:
+    from .models import User
 
 
 class UserManager(BaseUserManager):
@@ -12,7 +17,12 @@ class UserManager(BaseUserManager):
 
     use_in_migrations = True
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(
+        self,
+        email: str,
+        password: str | None = None,
+        **extra_fields: Any,
+    ) -> "User":
         """Create and save a standard user account."""
 
         if not email:
@@ -30,7 +40,12 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(
+        self,
+        email: str,
+        password: str | None = None,
+        **extra_fields: Any,
+    ) -> "User":
         """Create and save an administrator account."""
 
         extra_fields.setdefault("role", UserRole.ADMIN)

@@ -9,6 +9,7 @@ from rest_framework.test import APIRequestFactory
 
 
 class PermissionTests(TestCase):
+    """Verify role-based permission behaviour."""
     factory: APIRequestFactory
 
     def setUp(self):

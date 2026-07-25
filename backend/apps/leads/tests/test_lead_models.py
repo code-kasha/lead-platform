@@ -9,6 +9,7 @@ from django.test import TestCase
 
 
 class LeadModelTests(TestCase):
+    """Verify lead model behaviour."""
 
     def test_create_lead(self):
         lead = create_lead()

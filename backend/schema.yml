@@ -223,7 +223,7 @@ paths:
       operationId: leads_create
       description: Create a new lead. The lead is automatically created with status
         NEW and is initially unassigned.
-      summary: Create Lead
+      summary: Create a lead
       tags:
       - Leads
       requestBody:
@@ -263,7 +263,7 @@ paths:
       operationId: leads_list
       description: Returns a paginated list of leads visible to the authenticated
         user. Supports search, filtering and ordering.
-      summary: List Leads
+      summary: List visible leads
       parameters:
       - in: query
         name: assigned_to
@@ -329,57 +329,11 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Authentication credentials are invalid or missing.
   /api/leads/{id}/:
-    get:
-      operationId: leads_retrieve
-      description: Retrieve a single lead.
-      summary: Retrieve Lead
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
-        description: Unique lead identifier.
-        required: true
-      tags:
-      - Leads
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lead'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Authentication credentials are invalid or missing.
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: You do not have permission to perform this action.
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Requested resource was not found.
     put:
       operationId: leads_update
       description: Update lead information. Status changes and assignment are handled
         through dedicated endpoints.
-      summary: Update Lead
+      summary: Update a lead
       parameters:
       - in: path
         name: id
@@ -440,11 +394,57 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Requested resource was not found.
+    get:
+      operationId: leads_retrieve
+      description: Retrieve a single lead that is visible to the authenticated user.
+      summary: Retrieve a lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
     patch:
       operationId: leads_partial_update
       description: Update lead information. Status changes and assignment are handled
         through dedicated endpoints.
-      summary: Update Lead
+      summary: Update a lead
       parameters:
       - in: path
         name: id
@@ -506,8 +506,8 @@ paths:
           description: Requested resource was not found.
     delete:
       operationId: leads_destroy
-      description: Delete a lead.
-      summary: Delete Lead
+      description: Permanently delete a lead visible to the authenticated user.
+      summary: Delete a lead
       parameters:
       - in: path
         name: id
@@ -549,8 +549,8 @@ paths:
   /api/leads/{id}/notes/:
     post:
       operationId: leads_notes_create
-      description: Create a note for a lead.
-      summary: Add Lead Note
+      description: Create a note for a lead and record the related activity.
+      summary: Add a lead note
       parameters:
       - in: path
         name: id
@@ -608,8 +608,8 @@ paths:
   /api/leads/{id}/assign/:
     post:
       operationId: leads_assign_create
-      description: Assign a lead to an active member.
-      summary: Assign Lead
+      description: Assign a lead to an active member. Administrator access is required.
+      summary: Assign a lead
       parameters:
       - in: path
         name: id
@@ -673,8 +673,9 @@ paths:
   /api/leads/{id}/activities/:
     get:
       operationId: leads_activities_list
-      description: Retrieve all activities recorded for a lead.
-      summary: List Lead Activities
+      description: Retrieve activities recorded for a lead visible to the authenticated
+        user.
+      summary: List lead activities
       parameters:
       - in: query
         name: assigned_to
@@ -774,8 +775,8 @@ paths:
   /api/leads/{id}/notes/list/:
     get:
       operationId: leads_notes_list_list
-      description: Retrieve all notes for a lead.
-      summary: List Lead Notes
+      description: Retrieve all notes for a lead visible to the authenticated user.
+      summary: List lead notes
       parameters:
       - in: query
         name: assigned_to
@@ -869,8 +870,8 @@ paths:
   /api/leads/{id}/status/:
     post:
       operationId: leads_status_create
-      description: Change the status of a lead.
-      summary: Change Lead Status
+      description: Change a lead's status when the requested transition is allowed.
+      summary: Change a lead's status
       parameters:
       - in: path
         name: id
@@ -934,7 +935,7 @@ paths:
   /api/leads/notes/{id}/:
     put:
       operationId: leads_notes_update
-      description: Update and delete lead notes.
+      description: Provide update and delete operations for lead notes.
       parameters:
       - in: path
         name: id
@@ -968,7 +969,7 @@ paths:
     patch:
       operationId: updateLeadNote
       description: Update the content of a lead note.
-      summary: Update Lead Note
+      summary: Update a lead note
       parameters:
       - in: path
         name: id
@@ -1036,8 +1037,8 @@ paths:
           description: Requested resource was not found.
     delete:
       operationId: deleteLeadNote
-      description: Delete a lead note.
-      summary: Delete Lead Note
+      description: Permanently delete a lead note the authenticated user may manage.
+      summary: Delete a lead note
       parameters:
       - in: path
         name: id

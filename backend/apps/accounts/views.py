@@ -3,6 +3,7 @@
 # ==============================================================================
 
 from rest_framework import generics, permissions, status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -33,7 +34,7 @@ class MeView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_object(self):
+    def get_object(self) -> User:
         """Return the user associated with the current request."""
 
         return self.request.user
@@ -46,7 +47,7 @@ class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         """Invalidate the submitted refresh token."""
 
         serializer = self.get_serializer(

@@ -33,11 +33,13 @@ from apps.leads.serializers import (
 )
 from apps.leads.services import add_lead_note, assign_lead, change_lead_status
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -99,7 +101,7 @@ class LeadViewSet(ModelViewSet):
         "partial_update": LeadUpdateSerializer,
     }
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[Lead]:
         """Return leads visible to the current user or an empty schema queryset."""
 
         queryset = Lead.objects.select_related(
@@ -134,10 +136,8 @@ class LeadViewSet(ModelViewSet):
             LeadSerializer,
         )
 
-    def create(self, request, *args, **kwargs):
-        """
-        Create a lead and return the full lead representation.
-        """
+    def create(self, request: Request, *args, **kwargs) -> Response:
+        """Create a lead and return its full representation."""
 
         serializer = self.get_serializer(
             data=request.data,
@@ -164,7 +164,7 @@ class LeadViewSet(ModelViewSet):
     def perform_create(
         self,
         serializer,
-    ):
+    ) -> None:
         """Create a lead owned by the authenticated user."""
 
         serializer.save(
@@ -180,9 +180,9 @@ class LeadViewSet(ModelViewSet):
     )
     def assign(
         self,
-        request,
-        pk=None,
-    ):
+        request: Request,
+        pk: int | None = None,
+    ) -> Response:
         """Assign the selected lead to an active member."""
 
         lead = self.get_object()
@@ -218,9 +218,9 @@ class LeadViewSet(ModelViewSet):
     )
     def status(
         self,
-        request,
-        pk=None,
-    ):
+        request: Request,
+        pk: int | None = None,
+    ) -> Response:
         """Change the selected lead's status."""
 
         lead = self.get_object()
@@ -257,9 +257,9 @@ class LeadViewSet(ModelViewSet):
     )
     def add_note(
         self,
-        request,
-        pk=None,
-    ):
+        request: Request,
+        pk: int | None = None,
+    ) -> Response:
         """Add a note to a lead."""
 
         lead = self.get_object()
@@ -296,15 +296,15 @@ class LeadViewSet(ModelViewSet):
     )
     def list_notes(
         self,
-        request,
-        pk=None,
-    ):
+        request: Request,
+        pk: int | None = None,
+    ) -> Response:
         """List all notes for a lead."""
 
         lead = self.get_object()
 
         serializer = LeadNoteSerializer(
-            lead.notes.all(),
+            lead.notes.select_related("author"),
             many=True,
             context=self.get_serializer_context(),
         )
@@ -324,15 +324,13 @@ class LeadViewSet(ModelViewSet):
     )
     def list_activities(
         self,
-        request,
-        pk=None,
-    ):
-        """
-        List activities recorded for a lead.
-        """
+        request: Request,
+        pk: int | None = None,
+    ) -> Response:
+        """List activities recorded for a lead."""
         lead = self.get_object()
         serializer = LeadActivitySerializer(
-            lead.activities.all(),
+            lead.activities.select_related("user"),
             many=True,
             context=self.get_serializer_context(),
         )

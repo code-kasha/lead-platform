@@ -26,7 +26,7 @@ LEAD_PK_PARAMETER = OpenApiParameter(
 
 lead_list = extend_schema(
     tags=["Leads"],
-    summary="List Leads",
+    summary="List visible leads",
     description=(
         "Returns a paginated list of leads visible to the authenticated user. "
         "Supports search, filtering and ordering."
@@ -77,8 +77,8 @@ lead_list = extend_schema(
 
 lead_retrieve = extend_schema(
     tags=["Leads"],
-    summary="Retrieve Lead",
-    description="Retrieve a single lead.",
+    summary="Retrieve a lead",
+    description="Retrieve a single lead that is visible to the authenticated user.",
     parameters=[LEAD_PK_PARAMETER],
     responses={
         200: LeadSerializer,
@@ -90,7 +90,7 @@ lead_retrieve = extend_schema(
 
 lead_create = extend_schema(
     tags=["Leads"],
-    summary="Create Lead",
+    summary="Create a lead",
     description=(
         "Create a new lead. " "The lead is automatically created with status NEW and is initially unassigned."
     ),
@@ -104,7 +104,7 @@ lead_create = extend_schema(
 
 lead_update = extend_schema(
     tags=["Leads"],
-    summary="Update Lead",
+    summary="Update a lead",
     description=("Update lead information. " "Status changes and assignment are handled through dedicated endpoints."),
     request=LeadUpdateSerializer,
     parameters=[LEAD_PK_PARAMETER],
@@ -119,8 +119,8 @@ lead_update = extend_schema(
 
 lead_delete = extend_schema(
     tags=["Leads"],
-    summary="Delete Lead",
-    description="Delete a lead.",
+    summary="Delete a lead",
+    description="Permanently delete a lead visible to the authenticated user.",
     parameters=[LEAD_PK_PARAMETER],
     responses={
         204: OpenApiResponse(description="Lead deleted successfully."),
@@ -132,8 +132,8 @@ lead_delete = extend_schema(
 
 lead_assign = extend_schema(
     tags=["Leads"],
-    summary="Assign Lead",
-    description="Assign a lead to an active member.",
+    summary="Assign a lead",
+    description="Assign a lead to an active member. Administrator access is required.",
     request=AssignLeadSerializer,
     parameters=[LEAD_PK_PARAMETER],
     responses={
@@ -147,8 +147,8 @@ lead_assign = extend_schema(
 
 lead_change_status = extend_schema(
     tags=["Leads"],
-    summary="Change Lead Status",
-    description="Change the status of a lead.",
+    summary="Change a lead's status",
+    description="Change a lead's status when the requested transition is allowed.",
     parameters=[LEAD_PK_PARAMETER],
     request=ChangeLeadStatusSerializer,
     responses={
@@ -162,8 +162,8 @@ lead_change_status = extend_schema(
 
 lead_add_note = extend_schema(
     tags=["Leads"],
-    summary="Add Lead Note",
-    description="Create a note for a lead.",
+    summary="Add a lead note",
+    description="Create a note for a lead and record the related activity.",
     request=LeadNoteCreateSerializer,
     responses={
         201: LeadNoteSerializer,
@@ -176,8 +176,8 @@ lead_add_note = extend_schema(
 
 lead_list_notes = extend_schema(
     tags=["Leads"],
-    summary="List Lead Notes",
-    description="Retrieve all notes for a lead.",
+    summary="List lead notes",
+    description="Retrieve all notes for a lead visible to the authenticated user.",
     responses={
         200: LeadNoteSerializer(many=True),
         401: UNAUTHORIZED,
@@ -189,7 +189,7 @@ lead_list_notes = extend_schema(
 lead_update_note = extend_schema(
     tags=["Leads"],
     operation_id="updateLeadNote",
-    summary="Update Lead Note",
+    summary="Update a lead note",
     description="Update the content of a lead note.",
     parameters=[
         LEAD_PK_PARAMETER,
@@ -213,8 +213,8 @@ lead_update_note = extend_schema(
 lead_delete_note = extend_schema(
     tags=["Leads"],
     operation_id="deleteLeadNote",
-    summary="Delete Lead Note",
-    description="Delete a lead note.",
+    summary="Delete a lead note",
+    description="Permanently delete a lead note the authenticated user may manage.",
     parameters=[
         OpenApiParameter(
             name="pk",
@@ -235,8 +235,8 @@ lead_delete_note = extend_schema(
 
 lead_list_activities = extend_schema(
     tags=["Leads"],
-    summary="List Lead Activities",
-    description="Retrieve all activities recorded for a lead.",
+    summary="List lead activities",
+    description="Retrieve activities recorded for a lead visible to the authenticated user.",
     parameters=[
         LEAD_PK_PARAMETER,
     ],

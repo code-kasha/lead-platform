@@ -11,6 +11,7 @@ from rest_framework.test import APIClient, APITestCase
 
 
 class AuthenticationTests(APITestCase):
+    """Verify authentication endpoint behaviour."""
     client = APIClient()
     login_url = "/api/auth/login/"
     refresh_url = "/api/auth/refresh/"

@@ -8,6 +8,7 @@ from django.test import TestCase
 
 
 class LeadNoteModelTests(TestCase):
+    """Verify lead note model behaviour."""
 
     def test_create_note(self):
         note = create_note()

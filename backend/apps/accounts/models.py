@@ -2,9 +2,10 @@
 # Model for the User entity
 # ==============================================================================
 
-from apps.common.models import Base
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+
+from apps.common.models import Base
 
 from .choices import UserRole
 from .managers import UserManager
@@ -53,33 +54,33 @@ class User(Base, AbstractBaseUser, PermissionsMixin):
         verbose_name = "User"
         verbose_name_plural = "Users"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email
 
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         """Return the user's full name for Django integrations."""
 
         return self.full_name
 
-    def get_short_name(self):
+    def get_short_name(self) -> str:
         """Return the user's first name for Django integrations."""
 
         return self.first_name
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         """Return the user's combined first and last name."""
 
         return f"{self.first_name} {self.last_name}".strip()
 
     @property
-    def is_admin(self):
+    def is_admin(self) -> bool:
         """Return whether the user has the administrator role."""
 
         return self.role == UserRole.ADMIN
 
     @property
-    def is_member(self):
+    def is_member(self) -> bool:
         """Return whether the user has the member role."""
 
         return self.role == UserRole.MEMBER

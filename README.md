@@ -1,374 +1,249 @@
 # Lead Management Platform
 
-A production-ready **Lead Management Platform** built with **Django REST Framework** and **React**.
-
-The platform enables sales teams to capture, manage, assign, and track leads throughout the sales pipeline. It features JWT authentication, role-based access control, lead assignment, workflow management, activity tracking, comprehensive OpenAPI documentation, and a layered architecture following Django and DRF best practices.
-
-This project is being developed as part of the **Full Stack Development Assessment**.
+A full-stack Lead Management Platform built with Django REST Framework and React. The project demonstrates a clean service-oriented backend architecture, role-based access control, typed API integration, and a modern React frontend for managing sales leads.
 
 ---
 
-# Features
+## Overview
 
-## Authentication
+The application provides a complete lead management workflow from authentication through lead creation, assignment, lifecycle tracking, notes, and activity history.
+
+The project follows an API-first development approach using OpenAPI documentation and generated TypeScript models to ensure consistency between the backend and frontend.
+
+---
+
+## Features
+
+### Authentication
 
 - JWT Authentication
-- Login
-- Logout
 - Token Refresh
-- Current User endpoint
-- Password hashing
-- Protected REST API
-- Role-based authorization
+- Secure Logout
+- Current User Endpoint
+- Role Based Access Control
 
 ---
 
-## Lead Management
+### Lead Management
 
-- Create, retrieve, update and delete leads
-- Lead assignment
-- Lead status workflow
-- Lead notes
-- Lead activity history
-- Server-side validation
-- Business rule enforcement
-- Automatic activity logging
-
----
-
-## Search & Filtering
-
-- Pagination
-- Search by:
-  - First name
-  - Last name
-  - Email
-  - Phone
-  - Company
-
-- Filter by:
-  - Status
-  - Source
-  - Creator
-  - Assigned member
-
-- Ordering support
+- Create Leads
+- View Lead Details
+- Update Leads
+- Delete Leads
+- Lead Assignment
+- Lead Status Workflow
+- Search
+- Filtering
+- Ordering
 
 ---
 
-## Notes
+### Lead Collaboration
 
-- Add notes
-- Update notes
-- Delete notes
-- List notes for a lead
-
----
-
-## Activity Tracking
-
-- Automatic activity logging
-- Assignment history
-- Status change history
-- Note activity
-- Activity timeline endpoint
+- Add Notes
+- Edit Notes
+- Delete Notes
+- Automatic Activity Timeline
+- Assignment History
+- Status Change History
 
 ---
 
-## API
+### API
 
 - RESTful API
-- OpenAPI 3 Specification
-- Swagger UI
-- ReDoc
-- Standardised API responses
-- Fully documented endpoints
+- OpenAPI / Swagger Documentation
+- Type-safe API contracts
+- Consistent response serializers
 
 ---
 
-## Architecture
+### Frontend
 
-- Modular Django application structure
-- Service layer for business logic
-- Serializer separation (Create / Update / Read)
-- Custom permission classes
-- PostgreSQL database
-- Environment-based configuration
-- Shared documentation components
-- Typed codebase
+- Responsive Dashboard
+- Protected Routes
+- React Query Server State
+- Toast Notifications
+- Reusable UI Components
+- TypeScript
+- Generated OpenAPI Types
 
 ---
 
-# Technology Stack
+## Technology Stack
 
-## Backend
+### Backend
 
 - Python
 - Django
 - Django REST Framework
-- PostgreSQL
 - Simple JWT
 - drf-spectacular
+- Django Filter
 
-## Frontend
+### Frontend
 
 - React
+- TypeScript
 - Vite
-- Axios
+- React Query
 - React Router
+- Axios
+- Tailwind CSS
+- React Hot Toast
 
 ---
 
-# Project Structure
+## Project Architecture
 
-```text
-backend/
-├── config/
-├── apps/
-│   ├── accounts/
-│   ├── common/
-│   └── leads/
-│       ├── serializers/
-│       ├── services.py
-│       ├── permissions.py
-│       ├── filters.py
-│       ├── docs.py
-│       ├── tests/
-│       └── views/
-└── manage.py
+### Backend
 
-frontend/
+```
+apps/
+
+accounts/
+common/
+leads/
+
+services/
+serializers/
+permissions/
+filters/
+docs/
 ```
 
----
+Business logic is separated into dedicated service functions while views remain responsible only for request handling.
 
-# API Documentation
-
-Once the backend is running:
-
-| Service        | URL            |
-| -------------- | -------------- |
-| Swagger UI     | `/api/docs/`   |
-| ReDoc          | `/api/redoc/`  |
-| OpenAPI Schema | `/api/schema/` |
-
----
-
-# Authentication
-
-All protected endpoints require a JWT access token.
-
-```http
-Authorization: Bearer <access_token>
 ```
+Request
+    ↓
 
-Authentication endpoints
+View
+    ↓
 
-```http
-POST /api/auth/login/
-POST /api/auth/refresh/
-POST /api/auth/logout/
-GET  /api/auth/me/
+Serializer
+    ↓
+
+Service
+    ↓
+
+Database
 ```
 
 ---
 
-# Main API Endpoints
+### Frontend
 
-## Leads
+```
+src/
 
-```http
-GET    /api/leads/
-POST   /api/leads/
-GET    /api/leads/{id}/
-PUT    /api/leads/{id}/
-PATCH  /api/leads/{id}/
-DELETE /api/leads/{id}/
+api/
+components/
+layouts/
+pages/
+routes/
+types/
 ```
 
-## Business Operations
-
-```http
-POST /api/leads/{id}/assign/
-POST /api/leads/{id}/status/
-```
-
-## Notes
-
-```http
-POST   /api/leads/{id}/notes/
-GET    /api/leads/{id}/notes/list/
-PATCH  /api/leads/notes/{id}/
-DELETE /api/leads/notes/{id}/
-```
-
-## Activities
-
-```http
-GET /api/leads/{id}/activities/
-```
+The frontend consumes generated OpenAPI TypeScript models rather than maintaining duplicate interfaces manually.
 
 ---
 
-# User Roles
+## Business Rules
 
-## Administrator
+The application enforces configurable lead lifecycle rules.
 
-- Full system access
-- Manage all leads
-- Assign leads
-- Change lead status
-- Manage notes
-- View all activities
+```
+NEW
+    ↓
+CONTACTED
+    ↓
+QUALIFIED
+    ↓
+PROPOSAL
+    ↓
+WON
+```
 
-## Member
+A lead may also transition to **LOST** from any intermediate stage where permitted.
 
-- View assigned and created leads
-- Update assigned and created leads
-- Change lead status
-- Create notes
-- Edit and delete own notes
-- View lead activities
+Every significant action automatically creates an activity record.
 
 ---
 
-# Running Locally
+## Implementation Highlights
 
-## Clone the repository
+### Service-Oriented Backend
 
-```bash
-git clone <repository-url>
-cd lead-management-platform
-```
+Business rules are encapsulated inside dedicated service functions rather than view classes.
 
-## Create a virtual environment
+### API-First Development
 
-```bash
-python -m venv .venv
-```
+The backend exposes a documented OpenAPI specification consumed directly by the frontend.
 
-## Activate the environment
+### Type Safety
 
-### Windows
+TypeScript models are generated from the OpenAPI schema, eliminating duplicated API contracts.
 
-```powershell
-.venv\Scripts\activate
-```
+### Automatic Activity Logging
 
-### Linux / macOS
+Assignments, status transitions and notes automatically create audit entries.
 
-```bash
-source .venv/bin/activate
-```
+### Role-Based Permissions
 
-## Install dependencies
+Different operations are protected using custom permission classes.
+
+### React Query
+
+Server state is cached and automatically refreshed after mutations.
+
+---
+
+## Running the Project
+
+### Backend
 
 ```bash
 pip install -r requirements.txt
-```
 
-## Configure environment variables
-
-Create a `.env` file.
-
-```env
-SECRET_KEY=
-DEBUG=True
-
-DATABASE_NAME=
-DATABASE_USER=
-DATABASE_PASSWORD=
-DATABASE_HOST=
-DATABASE_PORT=
-```
-
-## Apply migrations
-
-```bash
 python manage.py migrate
-```
 
-## Create a superuser
-
-```bash
-python manage.py createsuperuser
-```
-
-## Run the development server
-
-```bash
 python manage.py runserver
 ```
 
 ---
 
-# Testing
-
-Run the complete test suite
+### Frontend
 
 ```bash
-python manage.py test
-```
+pnpm install
 
-Run tests for individual apps
-
-```bash
-python manage.py test apps.accounts
-python manage.py test apps.leads
-```
-
-Generate the OpenAPI schema
-
-```bash
-python manage.py spectacular --file schema.yml
-```
-
-Run Django system checks
-
-```bash
-python manage.py check
+pnpm dev
 ```
 
 ---
 
-# Project Status
+## API Documentation
 
-## Completed
+Swagger documentation is available after starting the backend.
 
-- Project setup
-- JWT Authentication
-- Custom User model
-- Lead CRUD
-- Lead assignment
-- Lead status workflow
-- Notes API
-- Activity API
-- Search & filtering
-- Pagination
-- Custom permissions
-- Business service layer
-- Swagger documentation
-- ReDoc
-- OpenAPI schema generation
-- Comprehensive backend test suite
+```
+/api/docs/
+```
 
 ---
 
-# Roadmap
+## Future Improvements
 
-- React frontend
-- Dashboard
-- Lead analytics
 - Email notifications
-- CSV export
-- Docker support
-- GitHub Actions
-- CI/CD pipeline
-- Redis caching
-- Background tasks
+- Dashboard analytics
+- File attachments
+- Lead reminders
+- Advanced reporting
+- Bulk lead operations
 
 ---
 
-# License
+## Author
 
-This project is licensed under the MIT License.
+Akash Damle

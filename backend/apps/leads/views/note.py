@@ -11,6 +11,7 @@ from apps.leads.models import LeadNote
 from apps.leads.permissions import CanManageLeadNote
 from apps.leads.serializers import LeadNoteSerializer, LeadNoteUpdateSerializer
 from django.db.models import Q
+from django.db.models.query import QuerySet
 from drf_spectacular.utils import extend_schema_view
 from rest_framework.mixins import DestroyModelMixin, UpdateModelMixin
 from rest_framework.permissions import IsAuthenticated
@@ -26,9 +27,7 @@ class LeadNoteViewSet(
     DestroyModelMixin,
     GenericViewSet,
 ):
-    """
-    Update and delete lead notes.
-    """
+    """Provide update and delete operations for lead notes."""
 
     queryset = LeadNote.objects.select_related(
         "lead",
@@ -51,10 +50,8 @@ class LeadNoteViewSet(
         "retrieve": LeadNoteSerializer,
     }
 
-    def get_queryset(self):
-        """
-        Return the notes visible to the current user.
-        """
+    def get_queryset(self) -> QuerySet[LeadNote]:
+        """Return notes visible to the current user."""
 
         request = getattr(
             self,

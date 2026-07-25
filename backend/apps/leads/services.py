@@ -17,9 +17,7 @@ def add_lead_note(
     content: str,
     author: User,
 ) -> LeadNote:
-    """
-    Create a note for a lead and record the activity.
-    """
+    """Create a note for a lead and record its creation activity."""
 
     note = LeadNote.objects.create(
         lead=lead,
@@ -44,9 +42,7 @@ def change_lead_status(
     status: str,
     performed_by: User,
 ) -> Lead:
-    """
-    Change the status of a lead and record the activity.
-    """
+    """Change a lead's status and record the transition activity."""
 
     current_status = LeadStatus(lead.status)
     new_status = LeadStatus(status)
@@ -65,7 +61,12 @@ def change_lead_status(
 
     if new_status not in allowed:
         raise ValidationError(
-            {"status": (f"Cannot change status from " f"{current_status.label} " f"to " f"{new_status.label}.")}
+            {
+                "status": (
+                    f"Cannot change status from {current_status.label} "
+                    f"to {new_status.label}."
+                )
+            }
         )
 
     lead.status = new_status
@@ -101,9 +102,7 @@ def assign_lead(
     assigned_to: User,
     performed_by: User,
 ) -> Lead:
-    """
-    Assign a lead to a member and record the activity.
-    """
+    """Assign a lead to a member and record the assignment activity."""
 
     lead.assigned_to = assigned_to
 
@@ -118,7 +117,10 @@ def assign_lead(
         lead=lead,
         user=performed_by,
         activity_type=ActivityType.ASSIGNED,
-        description=(f"Lead assigned to " f"{assigned_to.get_full_name()} " f"by " f"{performed_by.get_full_name()}."),
+        description=(
+            f"Lead assigned to {assigned_to.get_full_name()} "
+            f"by {performed_by.get_full_name()}."
+        ),
     )
 
     return lead
@@ -130,9 +132,7 @@ def update_lead_note(
     note: LeadNote,
     content: str,
 ) -> LeadNote:
-    """
-    Update the content of a lead note.
-    """
+    """Update a lead note's content."""
 
     note.content = content
 
@@ -151,8 +151,6 @@ def delete_lead_note(
     *,
     note: LeadNote,
 ) -> None:
-    """
-    Delete a lead note.
-    """
+    """Delete a lead note."""
 
     note.delete()

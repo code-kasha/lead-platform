@@ -7,6 +7,7 @@ from django.test import TestCase
 
 
 class UserModelTests(TestCase):
+    """Verify user model behaviour."""
 
     def test_password_is_hashed(self):
         user = create_user()

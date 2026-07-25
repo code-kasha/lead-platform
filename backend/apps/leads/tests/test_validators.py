@@ -9,6 +9,7 @@ from django.test import TestCase
 
 
 class LeadValidatorTests(TestCase):
+    """Verify lead validation behaviour."""
 
     def test_valid_phone(self):
 

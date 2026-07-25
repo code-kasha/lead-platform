@@ -2,9 +2,10 @@
 # Models for the leads app
 # ==============================================================================
 
-from apps.common.models import Base
 from django.conf import settings
 from django.db import models
+
+from apps.common.models import Base
 
 from .choices import ActivityType, LeadStatus
 from .validators import validate_phone
@@ -59,7 +60,7 @@ class Lead(Base):
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
 
 
@@ -85,7 +86,7 @@ class LeadNote(Base):
         db_table = "lead_notes"
         ordering = ["-created_at"]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Note by {self.author} on {self.lead}"
 
 
@@ -118,5 +119,5 @@ class LeadActivity(Base):
         verbose_name = "Lead Activity"
         verbose_name_plural = "Lead Activities"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.activity_type} - {self.lead}"

@@ -8,6 +8,7 @@ from django.test import TestCase
 
 
 class LeadActivityModelTests(TestCase):
+    """Verify lead activity model behaviour."""
 
     def test_create_activity(self):
         activity = create_activity()

@@ -15,6 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class ListLeadNotesTests(APITestCase):
+    """Verify lead note listing endpoint behaviour."""
     client: APIClient
 
     def setUp(self):
