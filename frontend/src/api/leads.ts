@@ -70,9 +70,10 @@ export async function getLeadActivities(
 export async function createLead(data: LeadCreateRequest): Promise<Lead> {
 	const response = await api.post("/leads/", data)
 
+	console.log("POST /leads/ response:", response.data)
+
 	return response.data
 }
-
 export async function updateLead(
 	id: number,
 	data: LeadUpdateRequest,
