@@ -8,8 +8,25 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# ==============================================================================
+# Environment Helpers
+# ==============================================================================
+
+
+def get_list(name: str) -> list[str]:
+    """Return a comma-separated environment variable as a list."""
+
+    value = config(
+        name,
+        default="",
+    )
+
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 SECRET_KEY = config("SECRET_KEY")
 
+ALLOWED_HOSTS = get_list("ALLOWED_HOSTS")
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=lambda value: [host.strip() for host in value.split(",")],
@@ -116,10 +133,10 @@ USE_TZ = True
 # ==============================================================================
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = []
+
+if (BASE_DIR / "static").exists():
+    STATICFILES_DIRS.append(BASE_DIR / "static")
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -131,3 +148,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
