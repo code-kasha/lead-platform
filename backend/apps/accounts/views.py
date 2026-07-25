@@ -2,6 +2,8 @@
 # Authentication API Views
 # ==============================================================================
 
+from typing import cast
+
 from rest_framework import generics, permissions, status
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -35,9 +37,9 @@ class MeView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self) -> User:
-        """Return the user associated with the current request."""
+        """Return the authenticated user."""
 
-        return self.request.user
+        return cast(User, self.request.user)
 
 
 @logout_schema
