@@ -4,6 +4,16 @@ A full-stack Lead Management Platform built with Django REST Framework and React
 
 ---
 
+# Live Link : https://example.com
+
+## NOTE: I am using free tier hosting, so the performance may be sub par. I strongly recommend local testing, Also this was made in a very short time and I have tried to elevate it as much as I could.
+
+## Use of AI Tools
+
+AI tools (Claude and ChatGPT) were used during development for `Scaffolding bolierplate, creating documents, I use AI and make it write tons of code, I select and refine thus making the product better`. All architectural decisions, the permission model, and the final code were reviewed and written/adjusted by me.
+
+---
+
 ## Overview
 
 The application provides a complete lead management workflow from authentication through lead creation, assignment, lifecycle tracking, notes, and activity history.
