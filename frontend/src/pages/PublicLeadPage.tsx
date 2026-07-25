@@ -53,7 +53,7 @@ export default function PublicLeadPage() {
 		mutation.mutate(data)
 	}
 	return (
-		<div className="flex min-h-screen flex-col bg-linear-to-br from-slate-50 via-white to-blue-50">
+		<div className="flex h-screen flex-col bg-linear-to-br from-slate-50 via-white to-blue-50">
 			<header className="border-b bg-white/90 backdrop-blur">
 				<div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 					<h1 className="text-xl font-bold text-gray-900">
