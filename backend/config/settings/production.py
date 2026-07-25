@@ -26,3 +26,8 @@ SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
 )
+
+MIDDLEWARE.insert(
+    2,
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+)

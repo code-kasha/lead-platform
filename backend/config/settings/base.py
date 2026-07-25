@@ -27,11 +27,6 @@ def get_list(name: str) -> list[str]:
 SECRET_KEY = config("SECRET_KEY")
 
 ALLOWED_HOSTS = get_list("ALLOWED_HOSTS")
-ALLOWED_HOSTS = config(
-    "ALLOWED_HOSTS",
-    cast=lambda value: [host.strip() for host in value.split(",")],
-    default=[],
-)
 
 
 # ==============================================================================
@@ -73,7 +68,6 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -132,11 +126,16 @@ USE_TZ = True
 # Static & Media Files
 # ==============================================================================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 STATICFILES_DIRS = []
 
-if (BASE_DIR / "static").exists():
-    STATICFILES_DIRS.append(BASE_DIR / "static")
+static_dir = BASE_DIR / "static"
+
+if static_dir.exists():
+    STATICFILES_DIRS.append(static_dir)
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -147,13 +146,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 # ==============================================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
