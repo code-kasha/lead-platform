@@ -74,7 +74,6 @@ lead_list = extend_schema(
     },
 )
 
-
 lead_retrieve = extend_schema(
     tags=["Leads"],
     summary="Retrieve Lead",
@@ -87,7 +86,6 @@ lead_retrieve = extend_schema(
         404: NOT_FOUND,
     },
 )
-
 
 lead_create = extend_schema(
     tags=["Leads"],
@@ -102,7 +100,6 @@ lead_create = extend_schema(
         401: UNAUTHORIZED,
     },
 )
-
 
 lead_update = extend_schema(
     tags=["Leads"],
@@ -119,7 +116,6 @@ lead_update = extend_schema(
     },
 )
 
-
 lead_delete = extend_schema(
     tags=["Leads"],
     summary="Delete Lead",
@@ -132,7 +128,6 @@ lead_delete = extend_schema(
         404: NOT_FOUND,
     },
 )
-
 
 lead_assign = extend_schema(
     tags=["Leads"],
@@ -189,10 +184,19 @@ lead_list_notes = extend_schema(
         404: NOT_FOUND,
     },
 )
+
 lead_update_note = extend_schema(
     tags=["Leads"],
     summary="Update Lead Note",
     description="Update the content of a lead note.",
+    parameters=[
+        OpenApiParameter(
+            name="pk",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description="Unique note identifier.",
+        ),
+    ],
     request=LeadNoteUpdateSerializer,
     responses={
         200: LeadNoteSerializer,

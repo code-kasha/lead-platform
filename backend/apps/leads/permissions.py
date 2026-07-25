@@ -67,3 +67,22 @@ class CanChangeStatus(BasePermission):
             return True
 
         return obj.created_by == request.user or obj.assigned_to == request.user
+
+
+class CanManageLeadNote(BasePermission):
+    """
+    Allow administrators or the note author to edit or delete a note.
+    """
+
+    message = "You do not have permission to modify this note."
+
+    def has_object_permission(
+        self,
+        request,
+        view,
+        obj,
+    ):
+        if request.user.role == UserRole.ADMIN:
+            return True
+
+        return obj.author == request.user
