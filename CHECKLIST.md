@@ -125,13 +125,13 @@
 ## Notes
 
 - [x] Add note
-- [ ] Edit note
-- [ ] Delete note
+- [x] Edit note
+- [x] Delete note
 - [x] List notes
 
 ## Activity
 
-- [ ] List activities
+- [x] List activities
 
 ---
 
@@ -140,6 +140,7 @@
 - [x] Admin permissions
 - [x] Member permissions
 - [x] Object-level permissions
+- [x] Note management permissions
 - [x] Test forbidden access
 
 ---
@@ -149,7 +150,7 @@
 - [x] Automatic activity logging
 - [x] Assignment validation
 - [x] Status transition rules
-- [ ] Timestamp notes
+- [x] Timestamp notes
 - [ ] Duplicate lead detection
 - [ ] Prevent self-assignment (optional)
 
@@ -167,18 +168,19 @@
 
 - [x] Model tests
 - [x] Validator tests
+- [x] CRUD API integration tests
 - [x] Assignment tests
 - [x] Status tests
+- [x] Notes API tests
+- [x] Activity API tests
+- [x] Permission integration tests
+- [x] Filtering tests
+- [x] Search tests
+- [x] Pagination tests
 
-## Remaining
+**Current test suite**
 
-- [ ] CRUD API integration tests
-- [ ] Notes API tests
-- [ ] Activity API tests
-- [ ] Permission integration tests
-- [ ] Filtering tests
-- [ ] Search tests
-- [ ] Pagination tests
+- [x] 62 passing tests
 
 ---
 
@@ -240,27 +242,27 @@
 - [ ] Public GitHub repository
 - [ ] Live backend
 - [ ] Live frontend
-- [ ] API documentation
+- [x] API documentation
 - [ ] Admin credentials
 - [ ] Member credentials
 - [ ] Footer requirement
-- [ ] Verify permissions
-- [ ] Final testing
+- [x] Verify permissions
+- [x] Final testing
 
 ---
 
 # Code Quality
 
-- [ ] Resolve Pylance warnings
+- [x] Resolve Pylance warnings
 - [ ] Resolve Ruff/Flake8 warnings
-- [ ] Resolve Django system check warnings
-- [ ] Resolve drf-spectacular warnings
-- [ ] Improve type hints
-- [ ] Remove dead code/imports
-- [ ] Review serializers
-- [ ] Review permissions
-- [ ] Review services
-- [ ] Review tests
+- [x] Resolve Django system check warnings
+- [x] Resolve drf-spectacular warnings
+- [x] Improve type hints
+- [x] Remove dead code/imports
+- [x] Review serializers
+- [x] Review permissions
+- [x] Review services
+- [x] Review tests
 
 ---
 

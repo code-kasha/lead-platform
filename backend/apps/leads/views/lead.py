@@ -13,6 +13,7 @@ from apps.leads.docs import (
     lead_create,
     lead_delete,
     lead_list,
+    lead_list_activities,
     lead_list_notes,
     lead_retrieve,
     lead_update,
@@ -23,6 +24,7 @@ from apps.leads.permissions import CanAssignLead, CanChangeStatus, LeadPermissio
 from apps.leads.serializers import (
     AssignLeadSerializer,
     ChangeLeadStatusSerializer,
+    LeadActivitySerializer,
     LeadCreateSerializer,
     LeadNoteCreateSerializer,
     LeadNoteSerializer,
@@ -51,6 +53,7 @@ from rest_framework.viewsets import ModelViewSet
     status=lead_change_status,
     add_note=lead_add_note,
     list_notes=lead_list_notes,
+    list_activities=lead_list_activities,
 )
 class LeadViewSet(ModelViewSet):
     """Provide lead CRUD operations, filtering, search, and ordering."""
@@ -279,6 +282,33 @@ class LeadViewSet(ModelViewSet):
             context=self.get_serializer_context(),
         )
 
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+    @action(
+        detail=True,
+        methods=["get"],
+        permission_classes=[
+            CanChangeStatus,
+        ],
+        url_path="activities",
+    )
+    def list_activities(
+        self,
+        request,
+        pk=None,
+    ):
+        """
+        List activities recorded for a lead.
+        """
+        lead = self.get_object()
+        serializer = LeadActivitySerializer(
+            lead.activities.all(),
+            many=True,
+            context=self.get_serializer_context(),
+        )
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,

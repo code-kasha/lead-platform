@@ -6,6 +6,7 @@ from apps.common.docs import BAD_REQUEST, FORBIDDEN, NOT_FOUND, UNAUTHORIZED
 from apps.leads.serializers import (
     AssignLeadSerializer,
     ChangeLeadStatusSerializer,
+    LeadActivitySerializer,
     LeadCreateSerializer,
     LeadNoteCreateSerializer,
     LeadNoteSerializer,
@@ -226,6 +227,21 @@ lead_delete_note = extend_schema(
         204: OpenApiResponse(
             description="Lead note deleted successfully.",
         ),
+        401: UNAUTHORIZED,
+        403: FORBIDDEN,
+        404: NOT_FOUND,
+    },
+)
+
+lead_list_activities = extend_schema(
+    tags=["Leads"],
+    summary="List Lead Activities",
+    description="Retrieve all activities recorded for a lead.",
+    parameters=[
+        LEAD_PK_PARAMETER,
+    ],
+    responses={
+        200: LeadActivitySerializer(many=True),
         401: UNAUTHORIZED,
         403: FORBIDDEN,
         404: NOT_FOUND,
