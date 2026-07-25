@@ -71,6 +71,9 @@ export default function LeadFormPage() {
 			isEdit ? updateLead(Number(id), payload) : createLead(payload),
 
 		onSuccess: (savedLead) => {
+			console.log("Saved lead:", savedLead)
+			console.log("Saved lead id:", savedLead.id)
+
 			toast.success(
 				isEdit ? "Lead updated successfully." : "Lead created successfully.",
 			)
