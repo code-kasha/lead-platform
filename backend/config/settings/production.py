@@ -10,7 +10,11 @@ from .database import *
 from .rest import *
 from .spectacular import *
 
-DEBUG = False
+DEBUG = config(
+    "DEBUG",
+    default=False,
+    cast=bool,
+)
 
 SECURE_SSL_REDIRECT = True
 
