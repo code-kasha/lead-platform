@@ -74,9 +74,9 @@
 ## Backend Quality
 
 - [x] Type Hints
-- [x] Consistent Docstrings
+- [x] Consistent Docstring
 - [x] Import Cleanup
-- [x] Query Optimisation
+- [x] Query Optimization
 - [x] 62 Automated Tests Passing
 
 ---

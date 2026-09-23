@@ -2,8 +2,9 @@
 # Shared OpenAPI Responses
 # ==============================================================================
 
-from apps.common.serializers import ErrorSerializer
 from drf_spectacular.utils import OpenApiResponse
+
+from apps.common.serializers import ErrorSerializer
 
 BAD_REQUEST = OpenApiResponse(
     response=ErrorSerializer,

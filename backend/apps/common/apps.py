@@ -2,7 +2,6 @@
 # Apps configuration for the Common app
 # ==============================================================================
 
-
 from django.apps import AppConfig
 
 
