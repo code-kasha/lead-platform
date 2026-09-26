@@ -1,24 +1,14 @@
 # Lead Management Platform
 
-A full-stack Lead Management Platform built with Django REST Framework and React. The project demonstrates a clean service-oriented backend architecture, role-based access control, typed API integration, and a modern React frontend for managing sales leads.
-
----
-
-# Live Link : https://example.com
-
-## NOTE: I am using free tier hosting, so the performance may be sub par. I strongly recommend local testing, Also this was made in a very short time and I have tried to elevate it as much as I could.
-
-## Use of AI Tools
-
-AI tools (Claude and ChatGPT) were used during development for `Scaffolding bolierplate, creating documents, I use AI and make it write tons of code, I select and refine thus making the product better`. All architectural decisions, the permission model, and the final code were reviewed and written/adjusted by me.
+A full-stack lead management application built with Django REST Framework and React. It demonstrates a service-oriented backend architecture, role-based access control, an API-first contract with generated TypeScript types, and a modern React dashboard for managing sales leads.
 
 ---
 
 ## Overview
 
-The application provides a complete lead management workflow from authentication through lead creation, assignment, lifecycle tracking, notes, and activity history.
+The application covers the complete lead workflow: authentication, lead capture, assignment, lifecycle tracking, notes, and an automatic activity history.
 
-The project follows an API-first development approach using OpenAPI documentation and generated TypeScript models to ensure consistency between the backend and frontend.
+Development follows an API-first approach — the backend publishes an OpenAPI specification, and the frontend consumes TypeScript models generated from it rather than maintaining duplicate interfaces by hand.
 
 ---
 
@@ -26,220 +16,172 @@ The project follows an API-first development approach using OpenAPI documentatio
 
 ### Authentication
 
-- JWT Authentication
-- Token Refresh
-- Secure Logout
-- Current User Endpoint
-- Role Based Access Control
-
----
+- JWT authentication with token refresh
+- Secure logout (token blacklisting)
+- Current-user endpoint
+- Role-based access control
 
 ### Lead Management
 
-- Create Leads
-- View Lead Details
-- Update Leads
-- Delete Leads
-- Lead Assignment
-- Lead Status Workflow
-- Search
-- Filtering
-- Ordering
+- Create, view, update, and delete leads
+- Lead assignment to users
+- Status lifecycle with transition validation
+- Search, filtering, and ordering
 
----
+### Collaboration
 
-### Lead Collaboration
-
-- Add Notes
-- Edit Notes
-- Delete Notes
-- Automatic Activity Timeline
-- Assignment History
-- Status Change History
-
----
+- Notes with create / edit / delete
+- Automatic activity timeline
+- Assignment and status-change history
 
 ### API
 
-- RESTful API
-- OpenAPI / Swagger Documentation
-- Type-safe API contracts
-- Consistent response serializers
-
----
+- RESTful endpoints with consistent response serializers
+- OpenAPI / Swagger documentation
+- Type-safe contracts shared with the frontend
 
 ### Frontend
 
-- Responsive Dashboard
-- Protected Routes
-- React Query Server State
-- Toast Notifications
-- Reusable UI Components
-- TypeScript
-- Generated OpenAPI Types
+- Responsive dashboard with protected routes
+- React Query for server state
+- Reusable UI component set
+- Toast notifications and loading/empty/error states
+- TypeScript models generated from OpenAPI
 
 ---
 
 ## Technology Stack
 
-### Backend
+**Backend** — Python, Django, Django REST Framework, Simple JWT, drf-spectacular, django-filter, PostgreSQL
 
-- Python
-- Django
-- Django REST Framework
-- Simple JWT
-- drf-spectacular
-- Django Filter
-
-### Frontend
-
-- React
-- TypeScript
-- Vite
-- React Query
-- React Router
-- Axios
-- Tailwind CSS
-- React Hot Toast
+**Frontend** — React, TypeScript, Vite, React Query, React Router, Axios, Tailwind CSS, React Hook Form, Zod, React Hot Toast
 
 ---
 
-## Project Architecture
-
-### Backend
+## Project Structure
 
 ```
-apps/
+backend/
+  apps/
+    accounts/      authentication, users, permissions
+    common/        shared models, pagination, serializers, utils
+    leads/         leads, notes, activities
+      services/    business logic
+      serializers/ request & response shapes
+      filters/     query filtering
+  config/
+    settings/      split settings (base / development / production)
 
-accounts/
-common/
-leads/
-
-services/
-serializers/
-permissions/
-filters/
-docs/
+frontend/
+  src/
+    api/           axios client + generated OpenAPI types
+    components/    reusable UI and layout
+    layouts/       page shells
+    pages/         route-level views
+    routes/        routing and route guards
+    types/         shared types
 ```
 
-Business logic is separated into dedicated service functions while views remain responsible only for request handling.
+Business logic lives in dedicated service functions; views stay responsible only for request handling.
 
 ```
-Request
-    ↓
-
-View
-    ↓
-
-Serializer
-    ↓
-
-Service
-    ↓
-
-Database
+Request → View → Serializer → Service → Database
 ```
-
----
-
-### Frontend
-
-```
-src/
-
-api/
-components/
-layouts/
-pages/
-routes/
-types/
-```
-
-The frontend consumes generated OpenAPI TypeScript models rather than maintaining duplicate interfaces manually.
 
 ---
 
 ## Business Rules
 
-The application enforces configurable lead lifecycle rules.
+Leads move through a configurable lifecycle:
 
 ```
-NEW
-    ↓
-CONTACTED
-    ↓
-QUALIFIED
-    ↓
-PROPOSAL
-    ↓
-WON
+NEW → CONTACTED → QUALIFIED → PROPOSAL → WON
 ```
 
-A lead may also transition to **LOST** from any intermediate stage where permitted.
-
-Every significant action automatically creates an activity record.
+A lead may also transition to **LOST** from any intermediate stage where permitted. Invalid transitions are rejected at the service layer, and every significant action writes an activity record automatically.
 
 ---
 
-## Implementation Highlights
+## Getting Started
 
-### Service-Oriented Backend
+### Prerequisites
 
-Business rules are encapsulated inside dedicated service functions rather than view classes.
+- Python 3.11+
+- Node.js 20+ and pnpm
+- PostgreSQL (or set `DATABASE_URL` to a hosted instance)
 
-### API-First Development
+### Environment
 
-The backend exposes a documented OpenAPI specification consumed directly by the frontend.
+Copy the example file and fill in your own values:
 
-### Type Safety
+```bash
+cp .env.example .env
+```
 
-TypeScript models are generated from the OpenAPI schema, eliminating duplicated API contracts.
-
-### Automatic Activity Logging
-
-Assignments, status transitions and notes automatically create audit entries.
-
-### Role-Based Permissions
-
-Different operations are protected using custom permission classes.
-
-### React Query
-
-Server state is cached and automatically refreshed after mutations.
-
----
-
-## Running the Project
+| Variable | Description |
+| --- | --- |
+| `SECRET_KEY` | Django secret key |
+| `DEBUG` | `True` for local development |
+| `DJANGO_ENV` | `development` or `production` |
+| `ALLOWED_HOSTS` | Comma-separated host list |
+| `DATABASE_*` / `DATABASE_URL` | Database connection settings |
+| `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` |
 
 ### Backend
 
 ```bash
+cd backend
 pip install -r requirements.txt
-
 python manage.py migrate
-
+python manage.py createsuperuser
 python manage.py runserver
 ```
-
----
 
 ### Frontend
 
 ```bash
+cd frontend
 pnpm install
-
 pnpm dev
 ```
+
+The frontend runs on `http://localhost:5173` and expects the API at `VITE_API_URL`.
 
 ---
 
 ## API Documentation
 
-Swagger documentation is available after starting the backend.
+With the backend running, Swagger UI is available at:
 
 ```
 /api/docs/
 ```
+
+The OpenAPI schema is committed at `backend/schema.yml`. Frontend types are regenerated from it with `openapi-typescript`.
+
+---
+
+## Testing & Quality
+
+```bash
+# backend
+cd backend && pytest
+
+# frontend
+cd frontend && pnpm lint && pnpm build
+```
+
+---
+
+## Screenshots
+
+Application screenshots are in [`screenshots/`](screenshots/).
+
+---
+
+## Documentation
+
+Additional design notes live in [`docs/`](docs/), including `ARCHITECTURE.md` and a set of assessment, migration, refactor, and standards write-ups.
 
 ---
 
