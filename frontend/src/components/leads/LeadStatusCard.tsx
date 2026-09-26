@@ -30,9 +30,14 @@ export default function LeadStatusCard({ leadId, currentStatus }: Props) {
 
 	const allowedStatuses = ALLOWED_TRANSITIONS[currentStatus]
 
-	const [status, setStatus] = useState<Status>(
-		allowedStatuses[0] ?? currentStatus,
-	)
+	const [selected, setSelected] = useState<Status | null>(null)
+
+	// Fall back to the first allowed option when the lead moves on and the
+	// previous choice is no longer a valid transition
+	const status =
+		selected && allowedStatuses.includes(selected)
+			? selected
+			: (allowedStatuses[0] ?? currentStatus)
 
 	const mutation = useMutation({
 		mutationFn: () => changeLeadStatus(leadId, status),
@@ -67,7 +72,7 @@ export default function LeadStatusCard({ leadId, currentStatus }: Props) {
 					className="flex-1 rounded-lg border border-gray-300 px-3 py-2"
 					value={status}
 					disabled={allowedStatuses.length === 0 || mutation.isPending}
-					onChange={(e) => setStatus(e.target.value as Status)}
+					onChange={(e) => setSelected(e.target.value as Status)}
 				>
 					{allowedStatuses.length === 0 ? (
 						<option value={currentStatus}>No further transitions</option>
