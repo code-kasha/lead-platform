@@ -106,9 +106,10 @@ A lead may also transition to **LOST** from any intermediate stage where permitt
 
 ### Prerequisites
 
-- Python 3.11+
-- Node.js 20+ and pnpm
+- Python 3.12+ (Django 6.0)
+- Node.js 22 and pnpm 10 (the versions CI uses)
 - PostgreSQL (or set `DATABASE_URL` to a hosted instance)
+- Or just Docker: `docker compose up --build` runs the production image locally (see [Deployment](#deployment))
 
 ### Environment
 
@@ -128,6 +129,8 @@ cp .env.example .env
 | `CSRF_TRUSTED_ORIGINS` | Production only, required: comma-separated trusted origins for CSRF |
 | `HSTS_SECONDS` | Production only: HSTS max-age in seconds (default `3600`); raise in steps once HTTPS is stable |
 | `HSTS_INCLUDE_SUBDOMAINS` / `HSTS_PRELOAD` | Production only: default `False`; enable only if every subdomain serves HTTPS |
+| `LOG_LEVEL` | Production only: minimum level written to the console log (default `INFO`) |
+| `DJANGO_SUPERUSER_EMAIL` / `DJANGO_SUPERUSER_PASSWORD` | Optional: create the first admin account on start, once (see `docs/DEPLOY.md`) |
 | `DATABASE_URL` | Database connection URL, e.g. `postgres://user:pass@localhost:5432/db` |
 | `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` (read by Vite from this same root `.env`) |
 
@@ -180,6 +183,19 @@ cd frontend && pnpm lint && pnpm test && pnpm build
 ## Screenshots
 
 Application screenshots are in [`screenshots/`](screenshots/).
+
+---
+
+## Deployment
+
+A single Docker image serves the API, the admin and the built frontend from one
+origin. [`docs/DEPLOY.md`](docs/DEPLOY.md) walks through a free demo deployment
+on Render (app) and Neon (Postgres), using the `render.yaml` blueprint, plus the
+full list of production environment variables.
+
+```bash
+docker compose up --build   # production image + Postgres at http://localhost:8000
+```
 
 ---
 

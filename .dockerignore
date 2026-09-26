@@ -1,0 +1,16 @@
+# Keep the build context small and never bake secrets into the image
+.git
+.github
+.env
+.env.*
+!.env.example
+**/node_modules
+**/__pycache__
+**/*.pyc
+frontend/dist
+backend/frontend_dist
+backend/staticfiles
+backend/media
+**/*.sqlite3
+docs
+screenshots

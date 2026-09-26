@@ -136,6 +136,9 @@ static_dir = BASE_DIR / "static"
 if static_dir.exists():
     STATICFILES_DIRS.append(static_dir)
 
+# Built frontend copied into the Docker image; absent in development
+FRONTEND_DIST = BASE_DIR / "frontend_dist"
+
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
