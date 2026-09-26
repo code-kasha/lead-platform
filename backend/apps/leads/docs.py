@@ -17,11 +17,20 @@ from apps.leads.serializers import (
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 
+# Named after the URL segment ({id}) so it describes, rather than duplicates,
+# the path parameter
 LEAD_PK_PARAMETER = OpenApiParameter(
-    name="pk",
+    name="id",
     type=OpenApiTypes.INT,
     location=OpenApiParameter.PATH,
     description="Unique lead identifier.",
+)
+
+NOTE_ID_PARAMETER = OpenApiParameter(
+    name="id",
+    type=OpenApiTypes.INT,
+    location=OpenApiParameter.PATH,
+    description="Unique note identifier.",
 )
 
 lead_list = extend_schema(
@@ -186,28 +195,32 @@ lead_list_notes = extend_schema(
     },
 )
 
+_NOTE_UPDATE_RESPONSES = {
+    200: LeadNoteSerializer,
+    400: BAD_REQUEST,
+    401: UNAUTHORIZED,
+    403: FORBIDDEN,
+    404: NOT_FOUND,
+}
+
 lead_update_note = extend_schema(
     tags=["Leads"],
     operation_id="updateLeadNote",
     summary="Update a lead note",
-    description="Update the content of a lead note.",
-    parameters=[
-        LEAD_PK_PARAMETER,
-        OpenApiParameter(
-            name="note_pk",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.PATH,
-            description="Unique note identifier.",
-        ),
-    ],
+    description="Update the content of a lead note. Only its author or an administrator may edit it.",
+    parameters=[NOTE_ID_PARAMETER],
     request=LeadNoteUpdateSerializer,
-    responses={
-        200: LeadNoteSerializer,
-        400: BAD_REQUEST,
-        401: UNAUTHORIZED,
-        403: FORBIDDEN,
-        404: NOT_FOUND,
-    },
+    responses=_NOTE_UPDATE_RESPONSES,
+)
+
+lead_replace_note = extend_schema(
+    tags=["Leads"],
+    operation_id="replaceLeadNote",
+    summary="Replace a lead note",
+    description="Replace the content of a lead note (PUT). Same rules as updating it.",
+    parameters=[NOTE_ID_PARAMETER],
+    request=LeadNoteUpdateSerializer,
+    responses=_NOTE_UPDATE_RESPONSES,
 )
 
 lead_delete_note = extend_schema(
@@ -215,14 +228,7 @@ lead_delete_note = extend_schema(
     operation_id="deleteLeadNote",
     summary="Delete a lead note",
     description="Permanently delete a lead note the authenticated user may manage.",
-    parameters=[
-        OpenApiParameter(
-            name="pk",
-            type=OpenApiTypes.INT,
-            location=OpenApiParameter.PATH,
-            description="Unique note identifier.",
-        ),
-    ],
+    parameters=[NOTE_ID_PARAMETER],
     responses={
         204: OpenApiResponse(
             description="Lead note deleted successfully.",

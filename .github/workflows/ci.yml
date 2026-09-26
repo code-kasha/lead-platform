@@ -40,7 +40,7 @@ jobs:
 
       - name: Check OpenAPI schema is up to date
         run: |
-          python manage.py spectacular --validate --file "$RUNNER_TEMP/schema.yml"
+          python manage.py spectacular --validate --fail-on-warn --file "$RUNNER_TEMP/schema.yml"
           diff -u schema.yml "$RUNNER_TEMP/schema.yml" || {
             echo "::error file=backend/schema.yml::schema.yml is stale. Run 'python manage.py spectacular --file schema.yml' and commit it."
             exit 1

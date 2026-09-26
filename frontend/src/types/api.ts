@@ -268,8 +268,11 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** @description Provide update and delete operations for lead notes. */
-        put: operations["leads_notes_update"];
+        /**
+         * Replace a lead note
+         * @description Replace the content of a lead note (PUT). Same rules as updating it.
+         */
+        put: operations["replaceLeadNote"];
         post?: never;
         /**
          * Delete a lead note
@@ -280,7 +283,7 @@ export interface paths {
         head?: never;
         /**
          * Update a lead note
-         * @description Update the content of a lead note.
+         * @description Update the content of a lead note. Only its author or an administrator may edit it.
          */
         patch: operations["updateLeadNote"];
         trace?: never;
@@ -401,9 +404,8 @@ export interface components {
         LeadNoteCreateRequest: {
             content: string;
         };
-        /** @description Serializer used for retrieving lead notes. */
-        LeadNoteRequest: {
-            lead: number;
+        /** @description Serializer used when updating a lead note. */
+        LeadNoteUpdateRequest: {
             content: string;
         };
         /** @description Validate the fields accepted when updating a lead. */
@@ -431,21 +433,6 @@ export interface components {
             /** @description Refresh token to invalidate. */
             refresh: string;
         };
-        PaginatedLeadActivityList: {
-            /** @example 123 */
-            count: number;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=4
-             */
-            next?: string | null;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=2
-             */
-            previous?: string | null;
-            results: components["schemas"]["LeadActivity"][];
-        };
         PaginatedLeadList: {
             /** @example 123 */
             count: number;
@@ -460,21 +447,6 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Lead"][];
-        };
-        PaginatedLeadNoteList: {
-            /** @example 123 */
-            count: number;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=4
-             */
-            next?: string | null;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=2
-             */
-            previous?: string | null;
-            results: components["schemas"]["LeadNote"][];
         };
         PaginatedUserSummaryList: {
             /** @example 123 */
@@ -834,10 +806,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -885,10 +855,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -951,10 +919,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1001,10 +967,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1064,34 +1028,11 @@ export interface operations {
     };
     leads_activities_list: {
         parameters: {
-            query?: {
-                assigned_to?: number;
-                company?: string;
-                created_by?: number;
-                /** @description Which field to use when ordering the results. */
-                ordering?: string;
-                /** @description A page number within the paginated result set. */
-                page?: number;
-                /** @description Number of results to return per page. */
-                page_size?: number;
-                /** @description A search term. */
-                search?: string;
-                /**
-                 * @description * `NEW` - New
-                 *     * `CONTACTED` - Contacted
-                 *     * `QUALIFIED` - Qualified
-                 *     * `PROPOSAL` - Proposal
-                 *     * `WON` - Won
-                 *     * `LOST` - Lost
-                 */
-                status?: "CONTACTED" | "LOST" | "NEW" | "PROPOSAL" | "QUALIFIED" | "WON";
-            };
+            query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1102,7 +1043,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedLeadActivityList"];
+                    "application/json": components["schemas"]["LeadActivity"][];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */
@@ -1139,10 +1080,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1266,28 +1205,7 @@ export interface operations {
     };
     leads_notes_list_list: {
         parameters: {
-            query?: {
-                assigned_to?: number;
-                company?: string;
-                created_by?: number;
-                /** @description Which field to use when ordering the results. */
-                ordering?: string;
-                /** @description A page number within the paginated result set. */
-                page?: number;
-                /** @description Number of results to return per page. */
-                page_size?: number;
-                /** @description A search term. */
-                search?: string;
-                /**
-                 * @description * `NEW` - New
-                 *     * `CONTACTED` - Contacted
-                 *     * `QUALIFIED` - Qualified
-                 *     * `PROPOSAL` - Proposal
-                 *     * `WON` - Won
-                 *     * `LOST` - Lost
-                 */
-                status?: "CONTACTED" | "LOST" | "NEW" | "PROPOSAL" | "QUALIFIED" | "WON";
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description A unique integer value identifying this lead. */
@@ -1302,7 +1220,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedLeadNoteList"];
+                    "application/json": components["schemas"]["LeadNote"][];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */
@@ -1339,10 +1257,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead. */
-                id: number;
                 /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1400,21 +1316,21 @@ export interface operations {
             };
         };
     };
-    leads_notes_update: {
+    replaceLeadNote: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead note. */
+                /** @description Unique note identifier. */
                 id: number;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LeadNoteRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["LeadNoteRequest"];
-                "multipart/form-data": components["schemas"]["LeadNoteRequest"];
+                "application/json": components["schemas"]["LeadNoteUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LeadNoteUpdateRequest"];
+                "multipart/form-data": components["schemas"]["LeadNoteUpdateRequest"];
             };
         };
         responses: {
@@ -1426,6 +1342,42 @@ export interface operations {
                     "application/json": components["schemas"]["LeadNote"];
                 };
             };
+            /** @description The request could not be processed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Authentication credentials are invalid or missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description You do not have permission to perform this action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Requested resource was not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
         };
     };
     deleteLeadNote: {
@@ -1433,10 +1385,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead note. */
-                id: number;
                 /** @description Unique note identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };
@@ -1483,12 +1433,8 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /** @description A unique integer value identifying this lead note. */
-                id: number;
                 /** @description Unique note identifier. */
-                note_pk: number;
-                /** @description Unique lead identifier. */
-                pk: number;
+                id: number;
             };
             cookie?: never;
         };

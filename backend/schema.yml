@@ -341,12 +341,6 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
         description: Unique lead identifier.
         required: true
       tags:
@@ -386,12 +380,6 @@ paths:
       parameters:
       - in: path
         name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
         schema:
           type: integer
         description: Unique lead identifier.
@@ -453,12 +441,6 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
         description: Unique lead identifier.
         required: true
       tags:
@@ -516,12 +498,6 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
         description: Unique lead identifier.
         required: true
       tags:
@@ -556,72 +532,12 @@ paths:
         user.
       summary: List lead activities
       parameters:
-      - in: query
-        name: assigned_to
-        schema:
-          type: integer
-      - in: query
-        name: company
-        schema:
-          type: string
-      - in: query
-        name: created_by
-        schema:
-          type: integer
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: path
-        name: pk
-        schema:
-          type: integer
         description: Unique lead identifier.
         required: true
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum:
-          - CONTACTED
-          - LOST
-          - NEW
-          - PROPOSAL
-          - QUALIFIED
-          - WON
-        description: |-
-          * `NEW` - New
-          * `CONTACTED` - Contacted
-          * `QUALIFIED` - Qualified
-          * `PROPOSAL` - Proposal
-          * `WON` - Won
-          * `LOST` - Lost
       tags:
       - Leads
       security:
@@ -631,7 +547,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadActivityList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadActivity'
           description: ''
         '401':
           content:
@@ -659,12 +577,6 @@ paths:
       parameters:
       - in: path
         name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
         schema:
           type: integer
         description: Unique lead identifier.
@@ -781,66 +693,12 @@ paths:
       description: Retrieve all notes for a lead visible to the authenticated user.
       summary: List lead notes
       parameters:
-      - in: query
-        name: assigned_to
-        schema:
-          type: integer
-      - in: query
-        name: company
-        schema:
-          type: string
-      - in: query
-        name: created_by
-        schema:
-          type: integer
       - in: path
         name: id
         schema:
           type: integer
         description: A unique integer value identifying this lead.
         required: true
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: status
-        schema:
-          type: string
-          enum:
-          - CONTACTED
-          - LOST
-          - NEW
-          - PROPOSAL
-          - QUALIFIED
-          - WON
-        description: |-
-          * `NEW` - New
-          * `CONTACTED` - Contacted
-          * `QUALIFIED` - Qualified
-          * `PROPOSAL` - Proposal
-          * `WON` - Won
-          * `LOST` - Lost
       tags:
       - Leads
       security:
@@ -850,7 +708,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLeadNoteList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadNote'
           description: ''
         '401':
           content:
@@ -878,12 +738,6 @@ paths:
       parameters:
       - in: path
         name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
         schema:
           type: integer
         description: Unique lead identifier.
@@ -937,28 +791,30 @@ paths:
           description: Requested resource was not found.
   /api/leads/notes/{id}/:
     put:
-      operationId: leads_notes_update
-      description: Provide update and delete operations for lead notes.
+      operationId: replaceLeadNote
+      description: Replace the content of a lead note (PUT). Same rules as updating
+        it.
+      summary: Replace a lead note
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead note.
+        description: Unique note identifier.
         required: true
       tags:
-      - leads
+      - Leads
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LeadNoteRequest'
+              $ref: '#/components/schemas/LeadNoteUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LeadNoteRequest'
+              $ref: '#/components/schemas/LeadNoteUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LeadNoteRequest'
+              $ref: '#/components/schemas/LeadNoteUpdateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -969,28 +825,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/LeadNote'
           description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
     patch:
       operationId: updateLeadNote
-      description: Update the content of a lead note.
+      description: Update the content of a lead note. Only its author or an administrator
+        may edit it.
       summary: Update a lead note
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this lead note.
-        required: true
-      - in: path
-        name: note_pk
-        schema:
-          type: integer
         description: Unique note identifier.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
-        description: Unique lead identifier.
         required: true
       tags:
       - Leads
@@ -1045,12 +914,6 @@ paths:
       parameters:
       - in: path
         name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead note.
-        required: true
-      - in: path
-        name: pk
         schema:
           type: integer
         description: Unique note identifier.
@@ -1328,18 +1191,15 @@ components:
           minLength: 1
       required:
       - content
-    LeadNoteRequest:
+    LeadNoteUpdateRequest:
       type: object
-      description: Serializer used for retrieving lead notes.
+      description: Serializer used when updating a lead note.
       properties:
-        lead:
-          type: integer
         content:
           type: string
           minLength: 1
       required:
       - content
-      - lead
     LeadUpdateRequest:
       type: object
       description: Validate the fields accepted when updating a lead.
@@ -1397,29 +1257,6 @@ components:
           description: Refresh token to invalidate.
       required:
       - refresh
-    PaginatedLeadActivityList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/LeadActivity'
     PaginatedLeadList:
       type: object
       required:
@@ -1443,29 +1280,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lead'
-    PaginatedLeadNoteList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/LeadNote'
     PaginatedUserSummaryList:
       type: object
       required:
