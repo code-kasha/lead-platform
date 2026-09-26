@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { AxiosError } from "axios"
-import type { AxiosResponse } from "axios"
+import type { AxiosRequestConfig, AxiosResponse } from "axios"
 import { describe, expect, it, vi } from "vitest"
 
 import api from "../../api/axios"
@@ -15,9 +15,10 @@ function renderList(url = "/leads") {
 
 // Fake paginated endpoint over `total` leads, 20 per page, mirroring DRF
 function paginatedLeads(total: number) {
-	return vi.spyOn(api, "get").mockImplementation((_url: string, config?: { params?: Record<string, number> }) => {
-		const page = config?.params?.page ?? 1
-		const size = config?.params?.page_size ?? 20
+	return vi.spyOn(api, "get").mockImplementation((_url: string, config?: AxiosRequestConfig) => {
+		const params = config?.params as { page?: number; page_size?: number } | undefined
+		const page = params?.page ?? 1
+		const size = params?.page_size ?? 20
 		const pages = Math.max(1, Math.ceil(total / size))
 
 		if (page > pages) {
