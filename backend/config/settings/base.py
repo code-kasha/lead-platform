@@ -27,7 +27,6 @@ def get_list(name: str) -> list[str]:
 SECRET_KEY = config("SECRET_KEY")
 
 ALLOWED_HOSTS = get_list("ALLOWED_HOSTS")
-print("ALLOWED_HOSTS =", ALLOWED_HOSTS)
 
 # ==============================================================================
 # Applications

@@ -74,9 +74,9 @@ Python lint config is `.flake8` (max line length 120).
 
 - Frontend source is **tab-indented**; match the surrounding file.
 - Backend modules carry `# ===` banner comments above declarations — follow the local style.
-- `frontend/src/api/axios.ts` builds its client from `VITE_API_URL`. There is no dev proxy in
-  `vite.config.ts`, so this variable must be set or every request resolves against the Vite
-  origin and 404s.
+- `frontend/src/api/axios.ts` builds its client from `VITE_API_URL` (e.g.
+  `http://127.0.0.1:8000/api`). There is no dev proxy; `vite.config.ts` sets `envDir: ".."` so
+  Vite reads the single repo-root `.env` (only `VITE_`-prefixed keys reach the client).
 
 ## Constraints
 
@@ -89,10 +89,5 @@ Python lint config is `.flake8` (max line length 120).
 
 ## Known issues
 
-- `backend/pytest.ini` sets `DJANGO_SETTINGS_MODULE=config.settings.dev`, but no `dev.py`
-  exists under `config/settings/` (the module is `development.py`, and the package itself
-  resolves the environment). This looks like it would break collection; it was not verified
-  here because pytest is not installed in the current interpreter. Confirm before trusting
-  the "62 tests passing" claim in `CHECKLIST.md`.
-- `VITE_API_URL` is currently empty in `.env`; set it before running the frontend.
-- The GitHub repo description is blank after the repo was recreated.
+- The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
+  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 63 tests.
