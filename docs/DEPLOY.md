@@ -1,4 +1,12 @@
-# Deployment (free demo hosting)
+# Deployment
+
+Three ways to run lead-platform:
+
+- **[The published image](#running-the-published-image)** from the GitHub Container Registry, on any host that runs containers.
+- **[Render and Neon](#1-create-the-database-neon)**, free, which is how the [live demo](https://lead-platform-c3mw.onrender.com/) runs.
+- **[`docker compose`](#running-the-production-image-locally)** on your own machine, with a local Postgres.
+
+## Free demo hosting
 
 One Docker image serves the whole app: the Django API, the Django admin, and the
 built React frontend (same origin, so no CORS setup). It runs on **Render's free
@@ -15,7 +23,7 @@ which is why the database lives on Neon.
 
 ---
 
-## 1. Create the database (Neon)
+### 1. Create the database (Neon)
 
 1. Sign up at [neon.com](https://neon.com) (GitHub login works; no card).
 2. Create a project: pick **Postgres 17** and the region closest to your users.
@@ -31,7 +39,7 @@ which is why the database lives on Neon.
    Use the direct (non-pooled) string: Django keeps its own connections open
    and doesn't work well behind the pooler's transaction mode.
 
-## 2. Deploy the app (Render)
+### 2. Deploy the app (Render)
 
 1. Sign up at [render.com](https://render.com) with GitHub (no card) and give
    Render access to this repository.
@@ -50,7 +58,7 @@ which is why the database lives on Neon.
    runs migrations, creates the admin account once, then starts the server.
 4. Open the service URL (shown at the top of the service page) and log in.
 
-## 3. After the first deploy
+### 3. After the first deploy
 
 - **Team members**: log in at `/admin/` with the admin account and add users.
   New users get the *Member* role; set *Admin* where needed. There is no
@@ -62,12 +70,30 @@ which is why the database lives on Neon.
 - **Logs**: Render's *Logs* tab shows requests and any errors with tracebacks
   (`LOG_LEVEL` controls verbosity, default `INFO`).
 
-## Ending the demo
+### Ending the demo
 
 Delete the service in Render and the project in Neon. Nothing is billed and no
 card is on file, so there is nothing else to cancel.
 
 ---
+
+## Running the published image
+
+Every release is published as `ghcr.io/code-kasha/lead-platform`, for amd64 and arm64. Tags are `v1.0.0` and `latest`. The image needs a Postgres database and a few settings (see [Environment variables](#environment-variables)):
+
+```bash
+docker run -d --name lead-platform -p 8000:8000 \
+  -e SECRET_KEY='a-long-random-value' \
+  -e DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require' \
+  -e ALLOWED_HOSTS=leads.example.com \
+  -e CORS_ALLOWED_ORIGINS=https://leads.example.com \
+  -e CSRF_TRUSTED_ORIGINS=https://leads.example.com \
+  -e DJANGO_SUPERUSER_EMAIL=you@example.com \
+  -e DJANGO_SUPERUSER_PASSWORD='a-long-password' \
+  ghcr.io/code-kasha/lead-platform:v1.0.0
+```
+
+Put it behind a reverse proxy that terminates TLS, such as Caddy or nginx, or a platform that does it for you. On start the container applies migrations and creates the admin account if it doesn't exist.
 
 ## Running the production image locally
 
@@ -97,7 +123,8 @@ Optional:
 | --- | --- | --- |
 | `DJANGO_SUPERUSER_EMAIL` / `_PASSWORD` | unset | Creates the first admin once. `_FIRST_NAME` / `_LAST_NAME` are optional. |
 | `LOG_LEVEL` | `INFO` | Console log level |
-| `HSTS_SECONDS` | `3600` | See the README before raising it |
+| `PUBLIC_LEADS_RATE` | `20/hour` | Rate limit for the public lead form, per client (`N/second`, `minute`, `hour` or `day`) |
+| `HSTS_SECONDS` | `3600` | Raise it in steps once HTTPS is stable. `HSTS_INCLUDE_SUBDOMAINS` and `HSTS_PRELOAD` default to `False` |
 | `WEB_CONCURRENCY` | `2` | Gunicorn workers; 2 fits a 512 MB instance |
 | `SECURE_SSL_REDIRECT` | `True` | Only turn off to try the image over plain HTTP |
 
@@ -115,3 +142,28 @@ Optional:
 Django serves `index.html` for every path outside `/api/`, `/admin/` and
 `/static/`, so deep links like `/leads/7` survive a reload. WhiteNoise serves
 the hashed files under `/assets/` gzipped, with a one-year immutable cache.
+
+The public form's rate limit is counted in each gunicorn worker's memory, so with
+`WEB_CONCURRENCY=2` a client can make up to twice the limit. For a strict limit
+across workers and instances, point Django's `CACHES` at Redis or Memcached.
+
+## CI and releases
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+
+- **Backend:** flake8, a missing-migrations check, a check that `backend/schema.yml` matches the code (with `--validate --fail-on-warn`), and pytest.
+- **Frontend:** a check that `src/types/api.ts` matches the schema, ESLint, Vitest, and a production build.
+- **Docker image:** builds the image, starts it, and smoke-tests it: a deep link to the web app, admin static files, a `401` from the API, and an admin login.
+
+Pushing a `v*` tag runs the same checks, then two more jobs:
+
+1. **Publish image:** checks that the tag matches `version` in `frontend/package.json`, then builds the image for amd64 and arm64 and pushes it to `ghcr.io/code-kasha/lead-platform` with the version tag and `latest`.
+2. **GitHub Release:** creates the release, with notes taken from the matching `CHANGELOG.md` entry and `schema.yml` and `SHA256SUMS` attached.
+
+To release a new version: set `version` in `frontend/package.json`, add a `## X.Y.Z (date)` entry to `CHANGELOG.md`, merge, then tag the merge commit:
+
+```bash
+git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z
+```
+
+A new package on the GitHub Container Registry starts out private. To let others pull it, open it under the repository's **Packages** and set its visibility to **Public** (*Package settings → Change visibility*).

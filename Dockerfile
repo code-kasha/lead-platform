@@ -4,9 +4,10 @@
 # React app (same origin, so the frontend calls /api directly).
 
 # ------------------------------------------------------------------------------
-# Stage 1: build the frontend
+# Stage 1: build the frontend (static files, so it runs on the build machine's
+# own platform even when the image is built for another one)
 # ------------------------------------------------------------------------------
-FROM node:22-slim AS frontend
+FROM --platform=$BUILDPLATFORM node:22-slim AS frontend
 
 WORKDIR /app/frontend
 

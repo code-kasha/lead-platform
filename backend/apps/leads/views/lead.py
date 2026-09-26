@@ -31,7 +31,7 @@ from apps.leads.serializers import (
     LeadSerializer,
     LeadUpdateSerializer,
 )
-from apps.leads.services import add_lead_note, assign_lead, change_lead_status
+from apps.leads.services import add_lead_note, assign_lead, change_lead_status, create_lead, update_lead
 from django.db.models import Q
 from django.db.models.query import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
@@ -43,6 +43,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.viewsets import ModelViewSet
 
 
@@ -149,8 +150,9 @@ class LeadViewSet(ModelViewSet):
             raise_exception=True,
         )
 
-        lead = serializer.save(
-            created_by=request.user,
+        lead = create_lead(
+            data=serializer.validated_data,
+            created_by=cast(User, request.user),
         )
 
         output = LeadSerializer(
@@ -163,14 +165,16 @@ class LeadViewSet(ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    def perform_create(
+    def perform_update(
         self,
         serializer,
     ) -> None:
-        """Create a lead owned by the authenticated user."""
+        """Apply the edit through the service so the change is recorded."""
 
-        serializer.save(
-            created_by=self.request.user,
+        serializer.instance = update_lead(
+            lead=serializer.instance,
+            data=serializer.validated_data,
+            performed_by=cast(User, self.request.user),
         )
 
     @action(
@@ -295,6 +299,8 @@ class LeadViewSet(ModelViewSet):
             CanChangeStatus,
         ],
         url_path="notes/list",
+        filter_backends=[],
+        pagination_class=None,
     )
     def list_notes(
         self,
@@ -323,6 +329,8 @@ class LeadViewSet(ModelViewSet):
             CanChangeStatus,
         ],
         url_path="activities",
+        filter_backends=[],
+        pagination_class=None,
     )
     def list_activities(
         self,
@@ -357,6 +365,10 @@ class PublicLeadCreateView(CreateAPIView):
     serializer_class = LeadCreateSerializer
     permission_classes = [AllowAny]
 
+    # Anonymous and open to the internet, so cap submissions per client
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public_leads"
+
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = self.get_serializer(
             data=request.data,
@@ -366,7 +378,8 @@ class PublicLeadCreateView(CreateAPIView):
             raise_exception=True,
         )
 
-        lead = serializer.save(
+        lead = create_lead(
+            data=serializer.validated_data,
             created_by=None,
         )
 
