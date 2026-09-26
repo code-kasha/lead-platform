@@ -27,7 +27,9 @@ frontend/
     layouts/    page shells
     pages/      route-level views
     routes/     routing and guards
-docs/           architecture and written assessments
+docs/           architecture, assessments, DEPLOY.md
+Dockerfile      one image: builds the frontend, serves API + admin + SPA (gunicorn + WhiteNoise)
+render.yaml     Render blueprint (free Docker web service; database on Neon)
 screenshots/    UI captures referenced by the README
 ```
 
@@ -77,6 +79,15 @@ a stale-types check (`frontend/src/types/api.ts` must match `openapi-typescript`
 `pnpm exec openapi-typescript ../backend/schema.yml -o src/types/api.ts` (from `frontend/`).
 Python lint config is `.flake8` (max line length 120).
 
+## Deployment
+
+See `docs/DEPLOY.md`. The image builds the frontend with `VITE_API_URL=/api` and copies it
+to `backend/frontend_dist/`; Django serves `index.html` for every path outside `/api/`,
+`/admin/` and `/static/` (`apps/common/views.py#frontend_index`, last route in
+`config/urls.py`), and WhiteNoise serves the assets. `docker-entrypoint.sh` runs `migrate`
+and `ensure_superuser` (idempotent) on every start. `docker compose up --build` runs it
+locally against Postgres.
+
 ## Conventions
 
 - Frontend source is **tab-indented**; match the surrounding file.
@@ -111,4 +122,4 @@ Python lint config is `.flake8` (max line length 120).
 ## Known issues
 
 - The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
-  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 71 tests.
+  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 80 tests.
