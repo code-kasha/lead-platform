@@ -123,7 +123,9 @@ paths:
   /api/auth/refresh/:
     post:
       operationId: auth_refresh_create
-      description: Generate a new access token using a valid refresh token.
+      description: 'Generate a new access token using a valid refresh token. Refresh
+        tokens are rotated: the response includes a new refresh token and the submitted
+        one is blacklisted.'
       summary: Refresh Access Token
       tags:
       - Authentication
@@ -144,11 +146,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessToken'
+                $ref: '#/components/schemas/Token'
               examples:
                 TokenRefresh:
                   value:
                     access: <new-access-token>
+                    refresh: <new-refresh-token>
                   summary: Token Refresh
           description: ''
         '401':
@@ -1108,15 +1111,6 @@ paths:
           description: ''
 components:
   schemas:
-    AccessToken:
-      type: object
-      description: Serialize a refreshed JWT access token.
-      properties:
-        access:
-          type: string
-          description: New JWT access token.
-      required:
-      - access
     ActivityTypeEnum:
       enum:
       - CREATED

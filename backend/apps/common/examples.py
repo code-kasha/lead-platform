@@ -18,6 +18,7 @@ TOKEN_REFRESH = OpenApiExample(
     response_only=True,
     value={
         "access": "<new-access-token>",
+        "refresh": "<new-refresh-token>",
     },
 )
 

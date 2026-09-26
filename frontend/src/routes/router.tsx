@@ -9,6 +9,7 @@ import LeadFormPage from "../pages/leads/LeadFormPage"
 import LeadListPage from "../pages/leads/LeadListPage"
 import ProfilePage from "../pages/ProfilePage"
 import PublicLeadPage from "../pages/PublicLeadPage"
+import RequireAuth from "./RequireAuth"
 
 export const router = createBrowserRouter([
 	{
@@ -20,31 +21,36 @@ export const router = createBrowserRouter([
 		element: <LoginPage />,
 	},
 	{
-		element: <DashboardLayout />,
+		element: <RequireAuth />,
 		children: [
 			{
-				path: "/dashboard",
-				element: <DashboardPage />,
-			},
-			{
-				path: "/leads",
-				element: <LeadListPage />,
-			},
-			{
-				path: "/leads/new",
-				element: <LeadFormPage />,
-			},
-			{
-				path: "/leads/:id",
-				element: <LeadDetailPage />,
-			},
-			{
-				path: "/leads/:id/edit",
-				element: <LeadFormPage />,
-			},
-			{
-				path: "profile",
-				element: <ProfilePage />,
+				element: <DashboardLayout />,
+				children: [
+					{
+						path: "/dashboard",
+						element: <DashboardPage />,
+					},
+					{
+						path: "/leads",
+						element: <LeadListPage />,
+					},
+					{
+						path: "/leads/new",
+						element: <LeadFormPage />,
+					},
+					{
+						path: "/leads/:id",
+						element: <LeadDetailPage />,
+					},
+					{
+						path: "/leads/:id/edit",
+						element: <LeadFormPage />,
+					},
+					{
+						path: "profile",
+						element: <ProfilePage />,
+					},
+				],
 			},
 		],
 	},

@@ -5,7 +5,7 @@
 from apps.common.docs import BAD_REQUEST, UNAUTHORIZED
 from apps.common.examples import LOGIN_SUCCESS, TOKEN_REFRESH
 from apps.common.examples import UNAUTHORIZED as UNAUTHORIZED_EXAMPLE
-from apps.common.serializers import AccessTokenSerializer, LoginRequestSerializer, TokenSerializer
+from apps.common.serializers import LoginRequestSerializer, TokenSerializer
 from drf_spectacular.utils import extend_schema
 
 from .serializers import LogoutSerializer, UserSerializer, UserSummarySerializer
@@ -32,9 +32,12 @@ login_schema = extend_schema(
 refresh_schema = extend_schema(
     tags=["Authentication"],
     summary="Refresh Access Token",
-    description="Generate a new access token using a valid refresh token.",
+    description=(
+        "Generate a new access token using a valid refresh token. Refresh tokens are rotated: "
+        "the response includes a new refresh token and the submitted one is blacklisted."
+    ),
     responses={
-        200: AccessTokenSerializer,
+        200: TokenSerializer,
         401: UNAUTHORIZED,
     },
     examples=[

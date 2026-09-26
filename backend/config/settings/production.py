@@ -23,6 +23,32 @@ SESSION_COOKIE_SECURE = True
 
 CSRF_COOKIE_SECURE = True
 
+# ==============================================================================
+# HTTP Strict Transport Security
+# ==============================================================================
+
+# Conservative default: browsers remember "HTTPS only" for one hour. Once HTTPS
+# is confirmed stable, raise HSTS_SECONDS in steps (e.g. 86400, then 31536000).
+# Enable subdomains/preload only if every subdomain serves HTTPS: preload list
+# removal takes months.
+SECURE_HSTS_SECONDS = config(
+    "HSTS_SECONDS",
+    default=3600,
+    cast=int,
+)
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config(
+    "HSTS_INCLUDE_SUBDOMAINS",
+    default=False,
+    cast=bool,
+)
+
+SECURE_HSTS_PRELOAD = config(
+    "HSTS_PRELOAD",
+    default=False,
+    cast=bool,
+)
+
 CORS_ALLOWED_ORIGINS = get_list("CORS_ALLOWED_ORIGINS")
 
 CSRF_TRUSTED_ORIGINS = get_list("CSRF_TRUSTED_ORIGINS")

@@ -77,7 +77,7 @@
 - [x] Consistent Docstring
 - [x] Import Cleanup
 - [x] Query Optimization
-- [x] 65 Automated Tests Passing
+- [x] 67 Automated Tests Passing
 
 ---
 
@@ -177,7 +177,8 @@
 
 - [x] Frontend Build (`pnpm build`)
 - [x] Frontend Lint (`pnpm lint`)
-- [x] Backend Tests (65/65)
+- [x] Frontend Tests (33/33, `pnpm test`)
+- [x] Backend Tests (67/67)
 - [x] Manual End-to-End Testing
 - [x] Swagger Verification
 

@@ -126,6 +126,8 @@ cp .env.example .env
 | `ALLOWED_HOSTS` | Comma-separated host list (required in production) |
 | `CORS_ALLOWED_ORIGINS` | Production only, required: comma-separated frontend origins allowed to call the API |
 | `CSRF_TRUSTED_ORIGINS` | Production only, required: comma-separated trusted origins for CSRF |
+| `HSTS_SECONDS` | Production only: HSTS max-age in seconds (default `3600`); raise in steps once HTTPS is stable |
+| `HSTS_INCLUDE_SUBDOMAINS` / `HSTS_PRELOAD` | Production only: default `False`; enable only if every subdomain serves HTTPS |
 | `DATABASE_URL` | Database connection URL, e.g. `postgres://user:pass@localhost:5432/db` |
 | `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` (read by Vite from this same root `.env`) |
 
@@ -170,7 +172,7 @@ The OpenAPI schema is committed at `backend/schema.yml`. Frontend types are rege
 cd backend && pytest
 
 # frontend
-cd frontend && pnpm lint && pnpm build
+cd frontend && pnpm lint && pnpm test && pnpm build
 ```
 
 ---
