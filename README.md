@@ -128,6 +128,7 @@ cp .env.example .env
 | `CSRF_TRUSTED_ORIGINS` | Production only, required: comma-separated trusted origins for CSRF |
 | `HSTS_SECONDS` | Production only: HSTS max-age in seconds (default `3600`); raise in steps once HTTPS is stable |
 | `HSTS_INCLUDE_SUBDOMAINS` / `HSTS_PRELOAD` | Production only: default `False`; enable only if every subdomain serves HTTPS |
+| `LOG_LEVEL` | Production only: minimum level written to the console log (default `INFO`) |
 | `DATABASE_URL` | Database connection URL, e.g. `postgres://user:pass@localhost:5432/db` |
 | `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` (read by Vite from this same root `.env`) |
 

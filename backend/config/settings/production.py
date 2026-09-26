@@ -24,6 +24,51 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # ==============================================================================
+# Logging
+# ==============================================================================
+
+# Django's defaults only log to the console when DEBUG is on and otherwise
+# email ADMINS (none are set), so production errors, including 500
+# tracebacks, were silently dropped. Write everything to stderr, which
+# container platforms collect.
+LOG_LEVEL = config("LOG_LEVEL", default="INFO").upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "plain": {
+            "format": "{asctime} {levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        # Replace Django's handlers (debug-only console, mail_admins) with the
+        # root console handler; request errors always get through.
+        "django": {
+            "handlers": [],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": [],
+            "level": "ERROR",
+            "propagate": True,
+        },
+    },
+}
+
+# ==============================================================================
 # HTTP Strict Transport Security
 # ==============================================================================
 
