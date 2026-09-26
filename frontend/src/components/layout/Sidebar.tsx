@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 
 import { logout } from "../../api/auth"
+import { clearTokens } from "../../utils/token"
 
 export default function Sidebar() {
 	const navigate = useNavigate()
@@ -16,19 +17,12 @@ export default function Sidebar() {
 		mutationFn: logout,
 
 		onSuccess: () => {
-			localStorage.removeItem("access")
-			localStorage.removeItem("refresh")
-
 			toast.success("Logged out successfully.")
-
-			navigate("/login", {
-				replace: true,
-			})
 		},
 
-		onError: () => {
-			localStorage.removeItem("access")
-			localStorage.removeItem("refresh")
+		// Always drop the local session, even if the server call failed
+		onSettled: () => {
+			clearTokens()
 
 			navigate("/login", {
 				replace: true,

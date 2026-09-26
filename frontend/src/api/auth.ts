@@ -1,5 +1,7 @@
 import api from "./axios"
 
+import { getRefreshToken } from "../utils/token"
+
 import type { components } from "../types/api"
 
 export type CurrentUser = components["schemas"]["User"]
@@ -18,5 +20,8 @@ export async function me(): Promise<CurrentUser> {
 }
 
 export async function logout() {
-	return api.post("/auth/logout/")
+	// The backend blacklists the submitted refresh token
+	return api.post("/auth/logout/", {
+		refresh: getRefreshToken(),
+	})
 }
