@@ -123,7 +123,9 @@ cp .env.example .env
 | `SECRET_KEY` | Django secret key |
 | `DEBUG` | `True` for local development |
 | `DJANGO_ENV` | `development` or `production` |
-| `ALLOWED_HOSTS` | Comma-separated host list |
+| `ALLOWED_HOSTS` | Comma-separated host list (required in production) |
+| `CORS_ALLOWED_ORIGINS` | Production only, required: comma-separated frontend origins allowed to call the API |
+| `CSRF_TRUSTED_ORIGINS` | Production only, required: comma-separated trusted origins for CSRF |
 | `DATABASE_URL` | Database connection URL, e.g. `postgres://user:pass@localhost:5432/db` |
 | `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` (read by Vite from this same root `.env`) |
 
