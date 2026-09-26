@@ -44,26 +44,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/refresh/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Refresh Access Token
-         * @description Generate a new access token using a valid refresh token.
-         */
-        post: operations["auth_refresh_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/auth/me/": {
         parameters: {
             query?: never;
@@ -84,6 +64,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/refresh/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh Access Token
+         * @description Generate a new access token using a valid refresh token.
+         */
+        post: operations["auth_refresh_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/users/": {
         parameters: {
             query?: never;
@@ -98,26 +98,6 @@ export interface paths {
         get: operations["auth_users_list"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/leads/public/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit a public lead
-         * @description Create a new lead without authentication.
-         */
-        post: operations["leads_public_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -180,20 +160,20 @@ export interface paths {
         patch: operations["leads_partial_update"];
         trace?: never;
     };
-    "/api/leads/{id}/notes/": {
+    "/api/leads/{id}/activities/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
-        put?: never;
         /**
-         * Add a lead note
-         * @description Create a note for a lead and record the related activity.
+         * List lead activities
+         * @description Retrieve activities recorded for a lead visible to the authenticated user.
          */
-        post: operations["leads_notes_create"];
+        get: operations["leads_activities_list"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -220,20 +200,20 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/leads/{id}/activities/": {
+    "/api/leads/{id}/notes/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /**
-         * List lead activities
-         * @description Retrieve activities recorded for a lead visible to the authenticated user.
-         */
-        get: operations["leads_activities_list"];
+        get?: never;
         put?: never;
-        post?: never;
+        /**
+         * Add a lead note
+         * @description Create a note for a lead and record the related activity.
+         */
+        post: operations["leads_notes_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -303,6 +283,26 @@ export interface paths {
          * @description Update the content of a lead note.
          */
         patch: operations["updateLeadNote"];
+        trace?: never;
+    };
+    "/api/leads/public/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit a public lead
+         * @description Create a new lead without authentication.
+         */
+        post: operations["leads_public_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -646,6 +646,34 @@ export interface operations {
             };
         };
     };
+    auth_me_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User"];
+                };
+            };
+            /** @description Authentication credentials are invalid or missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     auth_refresh_create: {
         parameters: {
             query?: never;
@@ -667,34 +695,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AccessToken"];
-                };
-            };
-            /** @description Authentication credentials are invalid or missing. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    auth_me_retrieve: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["User"];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */
@@ -741,31 +741,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
-                };
-            };
-        };
-    };
-    leads_public_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LeadCreateRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["LeadCreateRequest"];
-                "multipart/form-data": components["schemas"]["LeadCreateRequest"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Lead"];
                 };
             };
         };
@@ -1092,39 +1067,47 @@ export interface operations {
             };
         };
     };
-    leads_notes_create: {
+    leads_activities_list: {
         parameters: {
-            query?: never;
+            query?: {
+                assigned_to?: number;
+                company?: string;
+                created_by?: number;
+                /** @description Which field to use when ordering the results. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+                /** @description A search term. */
+                search?: string;
+                /**
+                 * @description * `NEW` - New
+                 *     * `CONTACTED` - Contacted
+                 *     * `QUALIFIED` - Qualified
+                 *     * `PROPOSAL` - Proposal
+                 *     * `WON` - Won
+                 *     * `LOST` - Lost
+                 */
+                status?: "CONTACTED" | "LOST" | "NEW" | "PROPOSAL" | "QUALIFIED" | "WON";
+            };
             header?: never;
             path: {
                 /** @description A unique integer value identifying this lead. */
                 id: number;
+                /** @description Unique lead identifier. */
+                pk: number;
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LeadNoteCreateRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["LeadNoteCreateRequest"];
-                "multipart/form-data": components["schemas"]["LeadNoteCreateRequest"];
-            };
-        };
+        requestBody?: never;
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LeadNote"];
-                };
-            };
-            /** @description The request could not be processed. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["PaginatedLeadActivityList"];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */
@@ -1222,47 +1205,39 @@ export interface operations {
             };
         };
     };
-    leads_activities_list: {
+    leads_notes_create: {
         parameters: {
-            query?: {
-                assigned_to?: number;
-                company?: string;
-                created_by?: number;
-                /** @description Which field to use when ordering the results. */
-                ordering?: string;
-                /** @description A page number within the paginated result set. */
-                page?: number;
-                /** @description Number of results to return per page. */
-                page_size?: number;
-                /** @description A search term. */
-                search?: string;
-                /**
-                 * @description * `NEW` - New
-                 *     * `CONTACTED` - Contacted
-                 *     * `QUALIFIED` - Qualified
-                 *     * `PROPOSAL` - Proposal
-                 *     * `WON` - Won
-                 *     * `LOST` - Lost
-                 */
-                status?: "CONTACTED" | "LOST" | "NEW" | "PROPOSAL" | "QUALIFIED" | "WON";
-            };
+            query?: never;
             header?: never;
             path: {
                 /** @description A unique integer value identifying this lead. */
                 id: number;
-                /** @description Unique lead identifier. */
-                pk: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeadNoteCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LeadNoteCreateRequest"];
+                "multipart/form-data": components["schemas"]["LeadNoteCreateRequest"];
+            };
+        };
         responses: {
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedLeadActivityList"];
+                    "application/json": components["schemas"]["LeadNote"];
+                };
+            };
+            /** @description The request could not be processed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */
@@ -1572,6 +1547,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    leads_public_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeadCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LeadCreateRequest"];
+                "multipart/form-data": components["schemas"]["LeadCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Lead"];
                 };
             };
         };
