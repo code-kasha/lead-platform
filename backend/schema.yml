@@ -1200,7 +1200,8 @@ components:
           allOf:
           - $ref: '#/components/schemas/UserSummary'
           readOnly: true
-          description: The user currently assigned to the lead.
+          nullable: true
+          description: The user currently assigned to the lead, or null if unassigned.
         created_at:
           type: string
           format: date-time

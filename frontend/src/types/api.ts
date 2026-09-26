@@ -355,8 +355,8 @@ export interface components {
             readonly status: components["schemas"]["StatusEnum"];
             /** @description The user who created the lead. */
             readonly created_by: components["schemas"]["UserSummary"];
-            /** @description The user currently assigned to the lead. */
-            readonly assigned_to: components["schemas"]["UserSummary"];
+            /** @description The user currently assigned to the lead, or null if unassigned. */
+            readonly assigned_to: components["schemas"]["UserSummary"] | null;
             /** Format: date-time */
             readonly created_at: string;
             /** Format: date-time */
