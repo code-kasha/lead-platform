@@ -8,6 +8,9 @@ Full-stack Lead Management Platform: Django REST Framework API + React/TypeScrip
 Covers authentication, lead capture, assignment, a validated status lifecycle, notes, and
 an automatic activity timeline.
 
+**Status: complete as of v1.0.0 and not actively maintained** (see `CONTRIBUTING.md`). Releases
+are cut by tagging; see "Releases" below.
+
 Repo: `github.com/code-kasha/lead-platform` · Author: Akash Damle
 
 ## Layout
@@ -27,7 +30,7 @@ frontend/
     layouts/    page shells
     pages/      route-level views
     routes/     routing and guards
-docs/           architecture, assessments, DEPLOY.md
+docs/           api.md (API reference), DEPLOY.md, architecture and assessments
 Dockerfile      one image: builds the frontend, serves API + admin + SPA (gunicorn + WhiteNoise)
 render.yaml     Render blueprint (free Docker web service; database on Neon)
 screenshots/    UI captures referenced by the README
@@ -75,7 +78,7 @@ CI (`.github/workflows/ci.yml`) runs on PRs and pushes to `main`: flake8, a miss
 check, a stale-schema check (`backend/schema.yml` must match `manage.py spectacular`), pytest,
 a stale-types check (`frontend/src/types/api.ts` must match `openapi-typescript` output), then
 `pnpm lint`, `pnpm test` and `pnpm build`. A third job builds the Docker image and smoke-tests the
-running container (SPA route, admin static, API 401, admin login). After changing views or serializers, regenerate both files:
+running container (SPA route, admin and Swagger UI static, API 401, admin login). After changing views or serializers, regenerate both files:
 `python manage.py spectacular --file schema.yml` (from `backend/`) and
 `pnpm exec openapi-typescript ../backend/schema.yml -o src/types/api.ts` (from `frontend/`).
 Python lint config is `.flake8` (max line length 120).
@@ -87,7 +90,15 @@ to `backend/frontend_dist/`; Django serves `index.html` for every path outside `
 `/admin/` and `/static/` (`apps/common/views.py#frontend_index`, last route in
 `config/urls.py`), and WhiteNoise serves the assets. `docker-entrypoint.sh` runs `migrate`
 and `ensure_superuser` (idempotent) on every start. `docker compose up --build` runs it
-locally against Postgres.
+locally against Postgres. Swagger UI and ReDoc are served from `drf-spectacular-sidecar`
+(`SWAGGER_UI_DIST`/`REDOC_DIST = "SIDECAR"`), not a CDN.
+
+## Releases
+
+Pushing a `v*` tag runs CI plus `publish` (checks the tag matches `version` in
+`frontend/package.json`, then pushes a multi-arch image to `ghcr.io/code-kasha/lead-platform`
+with the version tag and `latest`) and `release` (a GitHub Release whose notes are the matching
+`## X.Y.Z (date)` entry in `CHANGELOG.md`, with `schema.yml` and `SHA256SUMS` attached).
 
 ## Conventions
 
@@ -122,5 +133,6 @@ locally against Postgres.
 
 ## Known issues
 
-- The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
-  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 80 tests.
+- The backend requires **Python ≥ 3.12** (Django 6.1). Tests need `SECRET_KEY` and
+  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 99 tests
+  (frontend: 74).
