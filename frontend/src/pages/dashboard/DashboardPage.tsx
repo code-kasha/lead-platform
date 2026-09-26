@@ -44,7 +44,7 @@ export default function DashboardPage() {
 						</p>
 
 						<a
-							href="http://127.0.0.1:8000/api/docs/"
+							href={`${import.meta.env.VITE_API_URL}/docs/`}
 							target="_blank"
 							rel="noreferrer"
 							className="inline-flex rounded-lg bg-slate-700 px-4 py-2 text-white hover:bg-slate-800"

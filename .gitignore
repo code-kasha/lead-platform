@@ -160,3 +160,6 @@ docker-compose.override.yml
 # Misc
 # ==============================================================================
 *.orig
+
+# Frontend build copied into the backend (Docker / local production test)
+backend/frontend_dist/

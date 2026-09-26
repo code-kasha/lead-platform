@@ -3,8 +3,10 @@
 # ==============================================================================
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
+from apps.common.views import frontend_index
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -33,5 +35,13 @@ urlpatterns = [
         "api/redoc/",
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
+    ),
+    # --------------------------------------------------------------------------
+    # Frontend: every other path is a client-side route (must stay last)
+    # --------------------------------------------------------------------------
+    re_path(
+        r"^(?!api/|admin/|static/).*$",
+        frontend_index,
+        name="frontend",
     ),
 ]

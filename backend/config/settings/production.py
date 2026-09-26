@@ -17,7 +17,12 @@ DEBUG = config(
     cast=bool,
 )
 
-SECURE_SSL_REDIRECT = True
+# Off only to try the production image locally over plain HTTP
+SECURE_SSL_REDIRECT = config(
+    "SECURE_SSL_REDIRECT",
+    default=True,
+    cast=bool,
+)
 
 SESSION_COOKIE_SECURE = True
 
@@ -98,6 +103,16 @@ CORS_ALLOWED_ORIGINS = get_list("CORS_ALLOWED_ORIGINS")
 
 CSRF_TRUSTED_ORIGINS = get_list("CSRF_TRUSTED_ORIGINS")
 
+# Render sets RENDER_EXTERNAL_HOSTNAME to the service's public host. With the
+# frontend served from the same origin, that host is all three lists need, so
+# use it for any list left unset. Explicit values always win.
+RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", default="")
+
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = ALLOWED_HOSTS or [RENDER_EXTERNAL_HOSTNAME]
+    CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS or [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
+    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS or [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
+
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
@@ -119,3 +134,30 @@ MIDDLEWARE.insert(
     2,
     "whitenoise.middleware.WhiteNoiseMiddleware",
 )
+
+# ==============================================================================
+# Static Files
+# ==============================================================================
+
+# Compressed copies are written by collectstatic at image build time
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+# Serve the built frontend's files (assets/, favicon.svg) from the site root
+if FRONTEND_DIST.is_dir():
+    WHITENOISE_ROOT = FRONTEND_DIST
+
+
+def _is_hashed_asset(path: str, url: str) -> bool:
+    """Vite's assets/ files have content hashes in their names, so they can be cached forever."""
+
+    return url.startswith("/assets/")
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = _is_hashed_asset

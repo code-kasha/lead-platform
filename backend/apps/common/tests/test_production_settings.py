@@ -89,3 +89,38 @@ class HstsSettingsTests(SimpleTestCase):
 
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.split(), ["31536000", "True", "True"])
+
+
+class RenderHostnameTests(SimpleTestCase):
+    """Verify Render's public hostname fills in unset host/origin lists."""
+
+    PRINT_LISTS = "print(s.ALLOWED_HOSTS, s.CORS_ALLOWED_ORIGINS, s.CSRF_TRUSTED_ORIGINS, sep='|')"
+
+    def test_fills_unset_lists_from_render_hostname(self) -> None:
+        """Ensure a Render deploy starts with no host/origin variables set."""
+
+        result = load_production_settings(
+            self.PRINT_LISTS,
+            RENDER_EXTERNAL_HOSTNAME="leads-demo.onrender.com",
+            ALLOWED_HOSTS="",
+            CORS_ALLOWED_ORIGINS="",
+            CSRF_TRUSTED_ORIGINS="",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout.strip(),
+            "['leads-demo.onrender.com']|['https://leads-demo.onrender.com']|['https://leads-demo.onrender.com']",
+        )
+
+    def test_explicit_values_win(self) -> None:
+        """Ensure a custom domain configured explicitly isn't overridden."""
+
+        result = load_production_settings(
+            self.PRINT_LISTS,
+            RENDER_EXTERNAL_HOSTNAME="leads-demo.onrender.com",
+            ALLOWED_HOSTS="leads.example.com",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(result.stdout.startswith("['leads.example.com']|"))
