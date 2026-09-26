@@ -115,55 +115,54 @@ class AuthenticationTests(APITestCase):
             status.HTTP_401_UNAUTHORIZED,
         )
 
+    def test_authenticated_user_can_access_me(self):
 
-def test_authenticated_user_can_access_me(self):
+        login = cast(
+            Response,
+            self.client.post(
+                self.login_url,
+                {
+                    "email": "user@test.com",
+                    "password": "password123",
+                },
+                format="json",
+            ),
+        )
 
-    login = cast(
-        Response,
-        self.client.post(
-            self.login_url,
-            {
-                "email": "user@test.com",
-                "password": "password123",
-            },
-            format="json",
-        ),
-    )
+        login_data = cast(
+            dict[str, Any],
+            login.data,
+        )
 
-    login_data = cast(
-        dict[str, Any],
-        login.data,
-    )
+        token = login_data["access"]
 
-    token = login_data["access"]
+        client = cast(
+            APIClient,
+            self.client,
+        )
 
-    client = cast(
-        APIClient,
-        self.client,
-    )
+        client.credentials(
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
 
-    client.credentials(
-        HTTP_AUTHORIZATION=f"Bearer {token}",
-    )
+        response = cast(
+            Response,
+            client.get(
+                self.me_url,
+            ),
+        )
 
-    response = cast(
-        Response,
-        client.get(
-            self.me_url,
-        ),
-    )
+        data = cast(
+            dict[str, Any],
+            response.data,
+        )
 
-    data = cast(
-        dict[str, Any],
-        response.data,
-    )
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+        )
 
-    self.assertEqual(
-        response.status_code,
-        status.HTTP_200_OK,
-    )
-
-    self.assertEqual(
-        data["email"],
-        "user@test.com",
-    )
+        self.assertEqual(
+            data["email"],
+            "user@test.com",
+        )

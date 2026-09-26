@@ -89,10 +89,7 @@ Python lint config is `.flake8` (max line length 120).
 
 ## Known issues
 
-- `backend/pytest.ini` sets `DJANGO_SETTINGS_MODULE=config.settings.dev`, but no `dev.py`
-  exists under `config/settings/` (the module is `development.py`, and the package itself
-  resolves the environment). This looks like it would break collection; it was not verified
-  here because pytest is not installed in the current interpreter. Confirm before trusting
-  the "62 tests passing" claim in `CHECKLIST.md`.
+- The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
+  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 63 tests.
 - `VITE_API_URL` is currently empty in `.env`; set it before running the frontend.
 - The GitHub repo description is blank after the repo was recreated.
