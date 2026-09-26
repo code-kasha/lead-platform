@@ -84,6 +84,11 @@ Python lint config is `.flake8` (max line length 120).
 - `frontend/src/api/axios.ts` builds its client from `VITE_API_URL` (e.g.
   `http://127.0.0.1:8000/api`). There is no dev proxy; `vite.config.ts` sets `envDir: ".."` so
   Vite reads the single repo-root `.env` (only `VITE_`-prefixed keys reach the client).
+- Auth flow: `routes/RequireAuth.tsx` guards app routes (redirects to `/login` with the
+  requested path in `state.from`). On a 401, `api/axios.ts` refreshes once (shared across
+  concurrent requests, since refresh tokens rotate and the old one is blacklisted), retries,
+  and calls `utils/session.ts#endSession` if the refresh fails. Use `clearTokens()` rather
+  than touching `localStorage` keys directly.
 - Frontend tests live next to the code as `*.test.ts(x)` (Vitest + Testing Library, jsdom).
   `src/test/setup.ts` clears `localStorage` and mocks between tests, and Vitest pins
   `VITE_API_URL` to a dummy host; stub requests with `vi.spyOn(api, ...)` or an axios adapter.
