@@ -75,7 +75,7 @@ export interface paths {
         put?: never;
         /**
          * Refresh Access Token
-         * @description Generate a new access token using a valid refresh token.
+         * @description Generate a new access token using a valid refresh token. Refresh tokens are rotated: the response includes a new refresh token and the submitted one is blacklisted.
          */
         post: operations["auth_refresh_create"];
         delete?: never;
@@ -309,11 +309,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Serialize a refreshed JWT access token. */
-        AccessToken: {
-            /** @description New JWT access token. */
-            access: string;
-        };
         /**
          * @description * `CREATED` - Created
          *     * `STATUS_CHANGED` - Status Changed
@@ -694,7 +689,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AccessToken"];
+                    "application/json": components["schemas"]["Token"];
                 };
             };
             /** @description Authentication credentials are invalid or missing. */

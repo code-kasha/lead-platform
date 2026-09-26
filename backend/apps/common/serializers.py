@@ -33,14 +33,6 @@ class TokenSerializer(serializers.Serializer):
     )
 
 
-class AccessTokenSerializer(serializers.Serializer):
-    """Serialize a refreshed JWT access token."""
-
-    access = serializers.CharField(
-        help_text="New JWT access token.",
-    )
-
-
 class LoginRequestSerializer(serializers.Serializer):
     """Validate credentials submitted for authentication."""
 
