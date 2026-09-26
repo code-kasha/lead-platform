@@ -2,11 +2,14 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { AxiosError, type AxiosResponse } from "axios"
 import { createMemoryRouter, RouterProvider } from "react-router-dom"
+import toast from "react-hot-toast"
 import { describe, expect, it, vi } from "vitest"
 
 import api from "../../api/axios"
-import { getAccessToken, getRefreshToken } from "../../utils/token"
+import { getAccessToken, getRefreshToken, setTokens } from "../../utils/token"
 import LoginPage from "./LoginPage"
+
+vi.mock("react-hot-toast", () => ({ default: { success: vi.fn(), error: vi.fn() } }))
 
 function renderLogin(from?: string) {
 	const router = createMemoryRouter(
@@ -116,5 +119,41 @@ describe("LoginPage", () => {
 
 		expect(await screen.findByText("Dashboard")).toBeInTheDocument()
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument()
+	})
+})
+
+describe("LoginPage feedback and redirects", () => {
+	it("confirms a successful sign-in and shows progress while signing in", async () => {
+		let resolve!: (value: unknown) => void
+		vi.spyOn(api, "post").mockReturnValue(new Promise((r) => (resolve = r)) as never)
+
+		renderLogin()
+		await submit()
+
+		expect(screen.getByRole("button", { name: "Signing in..." })).toBeDisabled()
+
+		resolve({ data: { access: "access-1", refresh: "refresh-1" } })
+
+		expect(await screen.findByText("Dashboard")).toBeInTheDocument()
+		expect(toast.success).toHaveBeenCalledWith("Signed in successfully.")
+	})
+
+	it("sends an already signed-in user to the dashboard", async () => {
+		setTokens("access-1", "refresh-1")
+		const post = vi.spyOn(api, "post")
+
+		renderLogin()
+
+		expect(await screen.findByText("Dashboard")).toBeInTheDocument()
+		expect(screen.queryByPlaceholderText("Password")).not.toBeInTheDocument()
+		expect(post).not.toHaveBeenCalled()
+	})
+
+	it("sends an already signed-in user back to the page they were headed for", async () => {
+		setTokens("access-1", "refresh-1")
+
+		renderLogin("/leads/7")
+
+		expect(await screen.findByText("Lead detail")).toBeInTheDocument()
 	})
 })
