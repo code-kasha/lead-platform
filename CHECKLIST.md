@@ -177,7 +177,7 @@
 
 - [x] Frontend Build (`pnpm build`)
 - [x] Frontend Lint (`pnpm lint`)
-- [x] Frontend Tests (69/69, `pnpm test`)
+- [x] Frontend Tests (74/74, `pnpm test`)
 - [x] Backend Tests (80/80)
 - [x] Manual End-to-End Testing
 - [x] Swagger Verification

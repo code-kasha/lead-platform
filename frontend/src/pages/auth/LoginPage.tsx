@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Navigate, useLocation, useNavigate } from "react-router-dom"
 
 import { isAxiosError } from "axios"
+import toast from "react-hot-toast"
 
 import { login } from "../../api/auth"
-import { setTokens } from "../../utils/token"
+import { getAccessToken, setTokens } from "../../utils/token"
 
 function loginErrorMessage(error: unknown) {
 	if (isAxiosError(error) && error.response) {
@@ -46,12 +47,20 @@ export default function LoginPage() {
 
 			setTokens(response.data.access, response.data.refresh)
 
+			toast.success("Signed in successfully.")
+
 			navigate(from, { replace: true })
 		} catch (err) {
 			setError(loginErrorMessage(err))
 		} finally {
 			setLoading(false)
 		}
+	}
+
+	// Already signed in: skip the form. Expired tokens are refreshed (or the
+	// session ended) by the API client on the next request.
+	if (getAccessToken()) {
+		return <Navigate to={from} replace />
 	}
 
 	return (
@@ -88,9 +97,9 @@ export default function LoginPage() {
 
 				<button
 					disabled={loading}
-					className="rounded bg-blue-600 p-2 text-white"
+					className="rounded bg-blue-600 p-2 text-white disabled:opacity-60"
 				>
-					Login
+					{loading ? "Signing in..." : "Login"}
 				</button>
 			</form>
 		</div>

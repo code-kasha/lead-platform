@@ -15,6 +15,7 @@ import Button from "../components/ui/Button"
 
 import TextField from "../components/ui/TextField"
 import Footer from "../components/layout/Footer"
+import { getAccessToken } from "../utils/token"
 
 export default function PublicLeadPage() {
 	const [submitted, setSubmitted] = useState(false)
@@ -52,6 +53,8 @@ export default function PublicLeadPage() {
 	const onSubmit = (data: LeadCreateRequest) => {
 		mutation.mutate(data)
 	}
+	const signedIn = getAccessToken() !== null
+
 	return (
 		<div className="flex h-screen flex-col bg-linear-to-br from-slate-50 via-white to-blue-50">
 			<header className="border-b bg-white/90 backdrop-blur">
@@ -61,10 +64,10 @@ export default function PublicLeadPage() {
 					</h1>
 
 					<Link
-						to="/login"
+						to={signedIn ? "/dashboard" : "/login"}
 						className="rounded-lg bg-blue-600 px-5 py-2 font-medium text-white transition hover:bg-blue-700"
 					>
-						Login
+						{signedIn ? "Go to dashboard" : "Login"}
 					</Link>
 				</div>
 			</header>
