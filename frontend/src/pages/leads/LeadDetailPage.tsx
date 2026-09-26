@@ -23,13 +23,16 @@ import StatusBadge from "../../components/ui/StatusBadge"
 export default function LeadDetailPage() {
 	const { id } = useParams()
 
+	// Numeric, to match the ["lead", lead.id] keys the cards invalidate
+	const leadId = Number(id)
+
 	const {
 		data: lead,
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ["lead", id],
-		queryFn: () => getLead(Number(id)),
+		queryKey: ["lead", leadId],
+		queryFn: () => getLead(leadId),
 		enabled: !!id,
 	})
 

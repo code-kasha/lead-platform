@@ -13,8 +13,14 @@ export type LeadNote = components["schemas"]["LeadNote"]
 export type LeadListResponse =
 	paths["/api/leads/"]["get"]["responses"]["200"]["content"]["application/json"]
 
-export async function getLeads(): Promise<LeadListResponse> {
-	const response = await api.get("/leads/")
+export type LeadListParams = NonNullable<
+	paths["/api/leads/"]["get"]["parameters"]["query"]
+>
+
+export async function getLeads(
+	params: LeadListParams = {},
+): Promise<LeadListResponse> {
+	const response = await api.get("/leads/", { params })
 
 	return response.data
 }
@@ -70,10 +76,9 @@ export async function getLeadActivities(
 export async function createLead(data: LeadCreateRequest): Promise<Lead> {
 	const response = await api.post("/leads/", data)
 
-	console.log("POST /leads/ response:", response.data)
-
 	return response.data
 }
+
 export async function updateLead(
 	id: number,
 	data: LeadUpdateRequest,

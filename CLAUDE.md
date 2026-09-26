@@ -92,6 +92,12 @@ Python lint config is `.flake8` (max line length 120).
 - Frontend tests live next to the code as `*.test.ts(x)` (Vitest + Testing Library, jsdom).
   `src/test/setup.ts` clears `localStorage` and mocks between tests, and Vitest pins
   `VITE_API_URL` to a dummy host; stub requests with `vi.spyOn(api, ...)` or an axios adapter.
+  Helpers in `src/test/`: `renderRoute` (query client + memory router), `fixtures.ts`, and
+  `fakeLeadApi` (a stateful stand-in for one lead's endpoints that enforces the backend's
+  status transitions).
+- TanStack Query keys for a lead use the **numeric** id (`["lead", Number(id)]`); route params
+  are strings, and `["lead", "7"]` would never match the `["lead", 7]` keys that mutations
+  invalidate.
 
 ## Constraints
 

@@ -19,7 +19,8 @@ class LeadSerializer(serializers.ModelSerializer):
 
     assigned_to = UserSummarySerializer(
         read_only=True,
-        help_text="The user currently assigned to the lead.",
+        allow_null=True,
+        help_text="The user currently assigned to the lead, or null if unassigned.",
     )
 
     class Meta:
