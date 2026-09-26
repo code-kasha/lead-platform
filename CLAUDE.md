@@ -96,4 +96,4 @@ Python lint config is `.flake8` (max line length 120).
 ## Known issues
 
 - The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
-  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 65 tests.
+  `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 67 tests.

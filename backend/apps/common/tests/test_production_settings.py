@@ -18,7 +18,7 @@ REQUIRED_LISTS = (
 )
 
 
-def load_production_settings(**overrides: str) -> subprocess.CompletedProcess[str]:
+def load_production_settings(code: str = "", **overrides: str) -> subprocess.CompletedProcess[str]:
     """Import the settings package in a fresh interpreter with DJANGO_ENV=production."""
 
     env = {
@@ -34,7 +34,7 @@ def load_production_settings(**overrides: str) -> subprocess.CompletedProcess[st
     }
 
     return subprocess.run(
-        [sys.executable, "-c", "import config.settings"],
+        [sys.executable, "-c", f"import config.settings as s\n{code}"],
         cwd=BACKEND_DIR,
         env=env,
         capture_output=True,
@@ -62,3 +62,30 @@ class ProductionSettingsTests(SimpleTestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("ImproperlyConfigured", result.stderr)
                 self.assertIn(f"{name} must be set in production", result.stderr)
+
+
+class HstsSettingsTests(SimpleTestCase):
+    """Verify HSTS defaults are conservative and configurable from the environment."""
+
+    PRINT_HSTS = "print(s.SECURE_HSTS_SECONDS, s.SECURE_HSTS_INCLUDE_SUBDOMAINS, s.SECURE_HSTS_PRELOAD)"
+
+    def test_defaults_are_conservative(self) -> None:
+        """Ensure HSTS defaults to one hour without subdomains or preload."""
+
+        result = load_production_settings(self.PRINT_HSTS)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.split(), ["3600", "False", "False"])
+
+    def test_environment_overrides(self) -> None:
+        """Ensure each HSTS setting can be raised from the environment."""
+
+        result = load_production_settings(
+            self.PRINT_HSTS,
+            HSTS_SECONDS="31536000",
+            HSTS_INCLUDE_SUBDOMAINS="True",
+            HSTS_PRELOAD="True",
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.split(), ["31536000", "True", "True"])
