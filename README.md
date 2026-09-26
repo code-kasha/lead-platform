@@ -172,7 +172,7 @@ The OpenAPI schema is committed at `backend/schema.yml`. Frontend types are rege
 cd backend && pytest
 
 # frontend
-cd frontend && pnpm lint && pnpm build
+cd frontend && pnpm lint && pnpm test && pnpm build
 ```
 
 ---

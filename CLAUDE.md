@@ -63,6 +63,7 @@ pytest
 pnpm install
 pnpm dev         # http://localhost:5173
 pnpm lint
+pnpm test        # vitest run (jsdom); `pnpm test:watch` to iterate
 pnpm build       # tsc -b && vite build
 ```
 
@@ -71,7 +72,7 @@ Swagger is served at `/api/docs/` once the backend is running.
 CI (`.github/workflows/ci.yml`) runs on PRs and pushes to `main`: flake8, a missing-migrations
 check, a stale-schema check (`backend/schema.yml` must match `manage.py spectacular`), pytest,
 a stale-types check (`frontend/src/types/api.ts` must match `openapi-typescript` output), then
-`pnpm lint` and `pnpm build`. After changing views or serializers, regenerate both files:
+`pnpm lint`, `pnpm test` and `pnpm build`. After changing views or serializers, regenerate both files:
 `python manage.py spectacular --file schema.yml` (from `backend/`) and
 `pnpm exec openapi-typescript ../backend/schema.yml -o src/types/api.ts` (from `frontend/`).
 Python lint config is `.flake8` (max line length 120).
@@ -83,6 +84,9 @@ Python lint config is `.flake8` (max line length 120).
 - `frontend/src/api/axios.ts` builds its client from `VITE_API_URL` (e.g.
   `http://127.0.0.1:8000/api`). There is no dev proxy; `vite.config.ts` sets `envDir: ".."` so
   Vite reads the single repo-root `.env` (only `VITE_`-prefixed keys reach the client).
+- Frontend tests live next to the code as `*.test.ts(x)` (Vitest + Testing Library, jsdom).
+  `src/test/setup.ts` clears `localStorage` and mocks between tests, and Vitest pins
+  `VITE_API_URL` to a dummy host; stub requests with `vi.spyOn(api, ...)` or an axios adapter.
 
 ## Constraints
 
