@@ -3,6 +3,7 @@
 # ==============================================================================
 
 from decouple import config
+from django.core.exceptions import ImproperlyConfigured
 
 from .auth import *
 from .base import *
@@ -30,6 +31,18 @@ SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
 )
+
+# ==============================================================================
+# Required Environment
+# ==============================================================================
+
+# Empty lists fail silently at runtime (400s, or browsers blocking every API
+# call), so refuse to start instead.
+for _name in ("ALLOWED_HOSTS", "CORS_ALLOWED_ORIGINS", "CSRF_TRUSTED_ORIGINS"):
+    if not globals()[_name]:
+        raise ImproperlyConfigured(f"{_name} must be set in production (comma-separated list).")
+
+# ==============================================================================
 
 MIDDLEWARE.insert(
     2,
