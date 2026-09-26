@@ -29,7 +29,6 @@ frontend/
     routes/     routing and guards
 docs/           architecture and written assessments
 screenshots/    UI captures referenced by the README
-requirements/   split dependency pins (base / auth / final)
 ```
 
 ## Architecture rules
