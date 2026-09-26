@@ -92,4 +92,3 @@ Python lint config is `.flake8` (max line length 120).
 - The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
   `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 63 tests.
 - `VITE_API_URL` is currently empty in `.env`; set it before running the frontend.
-- The GitHub repo description is blank after the repo was recreated.
