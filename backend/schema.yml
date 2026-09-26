@@ -218,6 +218,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Authentication credentials are invalid or missing.
+  /api/leads/public/:
+    post:
+      operationId: leads_public_create
+      description: Create a new lead without authentication.
+      summary: Submit a public lead
+      tags:
+      - Public
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadCreateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
   /api/leads/:
     get:
       operationId: leads_list
@@ -371,52 +400,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Requested resource was not found.
-    get:
-      operationId: leads_retrieve
-      description: Retrieve a single lead that is visible to the authenticated user.
-      summary: Retrieve a lead
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
-        description: Unique lead identifier.
-        required: true
-      tags:
-      - Leads
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lead'
-          description: ''
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Authentication credentials are invalid or missing.
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: You do not have permission to perform this action.
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Requested resource was not found.
     patch:
       operationId: leads_partial_update
       description: Update lead information. Status changes and assignment are handled
@@ -528,6 +511,52 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: The request could not be processed.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
+    get:
+      operationId: leads_retrieve
+      description: Retrieve a single lead that is visible to the authenticated user.
+      summary: Retrieve a lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique lead identifier.
+        required: true
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
         '401':
           content:
             application/json:
@@ -933,6 +962,48 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Requested resource was not found.
   /api/leads/notes/{id}/:
+    delete:
+      operationId: deleteLeadNote
+      description: Permanently delete a lead note the authenticated user may manage.
+      summary: Delete a lead note
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lead note.
+        required: true
+      - in: path
+        name: pk
+        schema:
+          type: integer
+        description: Unique note identifier.
+        required: true
+      tags:
+      - Leads
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: Lead note deleted successfully.
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Authentication credentials are invalid or missing.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: You do not have permission to perform this action.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Requested resource was not found.
     patch:
       operationId: updateLeadNote
       description: Update the content of a lead note.
@@ -1035,48 +1106,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/LeadNote'
           description: ''
-    delete:
-      operationId: deleteLeadNote
-      description: Permanently delete a lead note the authenticated user may manage.
-      summary: Delete a lead note
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lead note.
-        required: true
-      - in: path
-        name: pk
-        schema:
-          type: integer
-        description: Unique note identifier.
-        required: true
-      tags:
-      - Leads
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: Lead note deleted successfully.
-        '401':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Authentication credentials are invalid or missing.
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: You do not have permission to perform this action.
-        '404':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Requested resource was not found.
 components:
   schemas:
     AccessToken:
