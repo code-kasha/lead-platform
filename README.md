@@ -124,8 +124,8 @@ cp .env.example .env
 | `DEBUG` | `True` for local development |
 | `DJANGO_ENV` | `development` or `production` |
 | `ALLOWED_HOSTS` | Comma-separated host list |
-| `DATABASE_*` / `DATABASE_URL` | Database connection settings |
-| `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` |
+| `DATABASE_URL` | Database connection URL, e.g. `postgres://user:pass@localhost:5432/db` |
+| `VITE_API_URL` | Base URL of the API, e.g. `http://127.0.0.1:8000/api` (read by Vite from this same root `.env`) |
 
 ### Backend
 

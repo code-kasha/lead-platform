@@ -74,9 +74,9 @@ Python lint config is `.flake8` (max line length 120).
 
 - Frontend source is **tab-indented**; match the surrounding file.
 - Backend modules carry `# ===` banner comments above declarations — follow the local style.
-- `frontend/src/api/axios.ts` builds its client from `VITE_API_URL`. There is no dev proxy in
-  `vite.config.ts`, so this variable must be set or every request resolves against the Vite
-  origin and 404s.
+- `frontend/src/api/axios.ts` builds its client from `VITE_API_URL` (e.g.
+  `http://127.0.0.1:8000/api`). There is no dev proxy; `vite.config.ts` sets `envDir: ".."` so
+  Vite reads the single repo-root `.env` (only `VITE_`-prefixed keys reach the client).
 
 ## Constraints
 
@@ -91,4 +91,3 @@ Python lint config is `.flake8` (max line length 120).
 
 - The backend requires **Python ≥ 3.12** (Django 6.0). Tests need `SECRET_KEY` and
   `DATABASE_URL` set (e.g. `DATABASE_URL=sqlite:///:memory:`); the full suite is 63 tests.
-- `VITE_API_URL` is currently empty in `.env`; set it before running the frontend.
