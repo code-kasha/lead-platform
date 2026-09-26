@@ -88,3 +88,38 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        run: docker build -t lead-platform:ci .
+
+      # Start the real image (SQLite stands in for Postgres) and check that it
+      # migrates, serves the SPA, static files and the API
+      - name: Smoke test
+        run: |
+          docker run -d --name app -p 8000:8000 \
+            -e SECRET_KEY=ci-only-insecure-secret-key-not-used-anywhere-else \
+            -e DATABASE_URL=sqlite:////tmp/ci.sqlite3 \
+            -e ALLOWED_HOSTS=localhost \
+            -e CORS_ALLOWED_ORIGINS=http://localhost:8000 \
+            -e CSRF_TRUSTED_ORIGINS=http://localhost:8000 \
+            -e SECURE_SSL_REDIRECT=False \
+            -e DJANGO_SUPERUSER_EMAIL=admin@example.com \
+            -e DJANGO_SUPERUSER_PASSWORD=ci-admin-password \
+            lead-platform:ci
+          for i in $(seq 60); do curl -fsS -o /dev/null http://localhost:8000/ && break; sleep 1; done
+          curl -fsS http://localhost:8000/leads/7 | grep -q 'id="root"'
+          curl -fsS -o /dev/null http://localhost:8000/static/admin/css/base.css
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/leads/)" = 401
+          curl -fsS -X POST http://localhost:8000/api/auth/login/ \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"admin@example.com","password":"ci-admin-password"}' | grep -q '"access"'
+
+      - name: Container logs
+        if: always()
+        run: docker logs app || true

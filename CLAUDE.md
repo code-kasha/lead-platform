@@ -74,7 +74,8 @@ Swagger is served at `/api/docs/` once the backend is running.
 CI (`.github/workflows/ci.yml`) runs on PRs and pushes to `main`: flake8, a missing-migrations
 check, a stale-schema check (`backend/schema.yml` must match `manage.py spectacular`), pytest,
 a stale-types check (`frontend/src/types/api.ts` must match `openapi-typescript` output), then
-`pnpm lint`, `pnpm test` and `pnpm build`. After changing views or serializers, regenerate both files:
+`pnpm lint`, `pnpm test` and `pnpm build`. A third job builds the Docker image and smoke-tests the
+running container (SPA route, admin static, API 401, admin login). After changing views or serializers, regenerate both files:
 `python manage.py spectacular --file schema.yml` (from `backend/`) and
 `pnpm exec openapi-typescript ../backend/schema.yml -o src/types/api.ts` (from `frontend/`).
 Python lint config is `.flake8` (max line length 120).
