@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form"
 
 import { useNavigate, useParams } from "react-router-dom"
 
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import toast from "react-hot-toast"
 
 import {
@@ -29,11 +29,16 @@ export default function LeadFormPage() {
 
 	const navigate = useNavigate()
 
+	const queryClient = useQueryClient()
+
 	const isEdit = Boolean(id)
 
+	// Numeric, matching the key LeadDetailPage reads
+	const leadId = Number(id)
+
 	const { data: lead, isLoading } = useQuery({
-		queryKey: ["lead", id],
-		queryFn: () => getLead(Number(id)),
+		queryKey: ["lead", leadId],
+		queryFn: () => getLead(leadId),
 		enabled: isEdit,
 	})
 
@@ -68,11 +73,15 @@ export default function LeadFormPage() {
 
 	const mutation = useMutation<Lead, Error, LeadCreateRequest>({
 		mutationFn: (payload) =>
-			isEdit ? updateLead(Number(id), payload) : createLead(payload),
+			isEdit ? updateLead(leadId, payload) : createLead(payload),
 
 		onSuccess: (savedLead) => {
-			console.log("Saved lead:", savedLead)
-			console.log("Saved lead id:", savedLead.id)
+			// The detail page shows the saved lead immediately, not stale data
+			queryClient.setQueryData(["lead", savedLead.id], savedLead)
+
+			queryClient.invalidateQueries({
+				queryKey: ["leads"],
+			})
 
 			toast.success(
 				isEdit ? "Lead updated successfully." : "Lead created successfully.",
