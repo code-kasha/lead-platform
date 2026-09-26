@@ -33,5 +33,15 @@ updates:
     groups:
       frontend:
         update-types: [minor, patch]
+    ignore:
+      # TypeScript 7 (the native compiler) drops the JS compiler API that
+      # openapi-typescript uses to generate src/types/api.ts; revisit once
+      # openapi-typescript supports it
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # Node's types should match the Node version the app runs on (CI and
+      # the Docker image use Node 22), not the newest Node release
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: chore(frontend)
